@@ -84,7 +84,14 @@ class USerController {
       userId: data._id,
     });
 
-    res.status(201).send(simpleSuccessResponse(token, "Sign in successfully!"));
+    res
+      .status(201)
+      .send(
+        simpleSuccessResponse(
+          { token: token, user: user },
+          "Sign in successfully!"
+        )
+      );
   }
 
   // [PATCH] /api/users/profile
@@ -284,11 +291,12 @@ class USerController {
     // find user by fb_id
     var user = await userStore.findUserByFbId(data.fb_id);
     if (!user) {
-      delete data.email;
-      user = await userStore.createUserAndReturn(data);
+      return res.status(401).json({
+        message: "Unauthorized!",
+      });
     }
 
-    // if find user => create user
+    // if find user
     const token = jwt.generateToken(
       {
         userId: user._id,
@@ -311,11 +319,12 @@ class USerController {
     // find user by gg_id
     var user = await userStore.findUserByGgId(data.gg_id);
     if (!user) {
-      delete data.email;
-      user = await userStore.createUserAndReturn(data);
+      return res.status(401).json({
+        message: "Unauthorized!",
+      });
     }
 
-    // if find user => create user
+    // if find user
     const token = jwt.generateToken(
       {
         userId: user._id,
