@@ -1,0 +1,32 @@
+[
+  {
+    "_id": {
+      "$oid": "6547b31acdca39b0463678ad"
+    },
+    "username": "nvhai",
+    "password": "$2b$10$KGLiPikVcTMB6CKlC7v30u7UAZBsHVRh0FjjYDqnOggURbm4lNFYO",
+    "createdAt": {
+      "$date": "2023-11-05T15:22:02.605Z"
+    },
+    "updatedAt": {
+      "$date": "2023-11-05T15:29:55.495Z"
+    },
+    "__v": 0,
+    "address": "P1, Lê Văn Sỹ",
+    "full_name": "Nguyễn Văn Hải"
+  },
+  {
+    "_id": {
+      "$oid": "6547b4bd659965016cedd049"
+    },
+    "username": "kinhletruongthanh",
+    "password": "$2b$10$KXe2KHewskrmRf/rTsb0YO/9CbaRyemgucHlwsNlnHCTF494P.FCG",
+    "createdAt": {
+      "$date": "2023-11-05T15:29:01.950Z"
+    },
+    "updatedAt": {
+      "$date": "2023-11-05T15:29:01.950Z"
+    },
+    "__v": 0
+  }
+]
