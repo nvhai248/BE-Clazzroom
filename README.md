@@ -23,14 +23,26 @@ This project serves as a straightforward back-end solution for the Web Advanced 
 
 ## APIs
 
-- `POST api/user/login`: Sign in to the application.
+- `POST api/users/login`: Sign in to the application.
   
-- `POST api/user/register`: Sign up to the application
+- `POST api/users/register`: Sign up to the application
   
-- `DELETE api/user/logout`: Log out from the application
+- `DELETE api/users/logout`: Log out from the application
   
-- `GET api/user/profile`: Get the user's profile.
+- `GET api/users/profile`: Get the user's profile.
   
-- `PATCH api/user/profile`: Update the user's profile.
+- `PATCH api/users/profile`: Update the user's profile.
   
 - `POST api/upload/image`: Upload the image with key `file`.
+
+- `PATCH api/upload/image`: Update the user's avatar.
+
+- `GET api/users/verify/:verificationToken`: Verify the user.
+
+- `POST api/users/resend-verification`: Resend verification via email.
+
+- `POST api/users/send-email-renew-pw` : Send the email renew password.
+
+- `PATCH api/users/change-pw` : Change the password.
+
+- `PATCH api/users/resetPw/:tokenForResetPw` : Reset the password.
