@@ -45,11 +45,16 @@ class userStore {
 
     var newUser = new User(user);
     await newUser.save();
-    return newUser;
+
+    return mongooseHelper.mongoosesToObject(newUser);
   };
 
   editProfile = async (userId, data) => {
     await User.updateOne({ _id: userId }, data);
+  };
+
+  editProfileByEmail = async (email, data) => {
+    await User.updateOne({ _id: email }, data);
   };
 }
 

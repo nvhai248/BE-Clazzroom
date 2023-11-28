@@ -276,6 +276,60 @@ class USerController {
 
     res.status(200).json({ message: "Reset password successfully!" });
   };
+
+  // [POST] facebook-oauth
+  facebookOAuth = async (req, res) => {
+    const data = req.body;
+
+    // find user by fb_id
+    var user = await userStore.findUserByFbId(data.fb_id);
+    if (!user) {
+      delete data.email;
+      user = await userStore.createUserAndReturn(data);
+    }
+
+    // if find user => create user
+    const token = jwt.generateToken(
+      {
+        userId: user._id,
+        role: user.role,
+      },
+      "7d"
+    );
+
+    await tokenStore.createToken({ userId: user._id, token: token });
+    return res.status(200).json({
+      message: "Login successful!",
+      token: token,
+    });
+  };
+
+  // [POST] google-oauth
+  googleOAuth = async (req, res) => {
+    const data = req.body;
+
+    // find user by gg_id
+    var user = await userStore.findUserByGgId(data.gg_id);
+    if (!user) {
+      delete data.email;
+      user = await userStore.createUserAndReturn(data);
+    }
+
+    // if find user => create user
+    const token = jwt.generateToken(
+      {
+        userId: user._id,
+        role: user.role,
+      },
+      "7d"
+    );
+
+    await tokenStore.createToken({ userId: user._id, token: token });
+    return res.status(200).json({
+      message: "Login successful!",
+      token: token,
+    });
+  };
 }
 
 module.exports = new USerController();

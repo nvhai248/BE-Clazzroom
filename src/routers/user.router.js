@@ -5,6 +5,8 @@ const userRouter = require("../app/controllers/user.controller");
 const authenticate = require("../app/middlewares/authenticate");
 const uploadImage = require("../app/middlewares/uploadImage");
 
+router.post("/google-oauth", userRouter.googleOAuth);
+router.post("/facebook-oauth", userRouter.facebookOAuth);
 router.patch("/resetPw/:tokenForResetPw", userRouter.resetPw);
 router.patch("/change-pw", authenticate, userRouter.changePw);
 router.post("/send-email-renew-pw", userRouter.requireSendEmailRenewPw);

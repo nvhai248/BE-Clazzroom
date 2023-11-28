@@ -46,3 +46,7 @@ This project serves as a straightforward back-end solution for the Web Advanced 
 - `PATCH api/users/change-pw` : Change the password.
 
 - `PATCH api/users/resetPw/:tokenForResetPw` : Reset the password.
+
+- `POST api/users/google-oauth` : OAuth by google.
+
+- `POST api/users/facebook-oauth` : OAuth by facebook.
