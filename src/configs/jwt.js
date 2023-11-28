@@ -25,13 +25,8 @@ class jwtAuth {
     }
   }
 
-  generateToken(data) {
-    var token = jwt.sign(data, secret_key, { expiresIn: "7d" });
-    return token;
-  }
-
-  generateVerificationToken(data) {
-    var token = jwt.sign(data, secret_key, { expiresIn: "1h" });
+  generateToken(data, expireTime) {
+    var token = jwt.sign(data, secret_key, { expiresIn: expireTime });
     return token;
   }
 }

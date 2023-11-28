@@ -13,10 +13,11 @@ function errorInternalServer(mgs) {
   };
 }
 
-function errorBadRequest() {
+function errorBadRequest(status, message) {
   return {
-    statusCode: 400,
-    message: "Bad Request",
+    statusCode: status,
+    type: "Bad Request",
+    message: message,
   };
 }
 

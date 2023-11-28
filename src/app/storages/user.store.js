@@ -2,9 +2,9 @@ const User = require("../models/user.model");
 const mongooseHelper = require("../utils/mongoose.helper");
 
 class userStore {
-  findUserByUsername = async (username) => {
+  findUserByEmail = async (email) => {
     var user = mongooseHelper.mongoosesToObject(
-      await User.findOne({ username: username })
+      await User.findOne({ email: email })
     );
     return user;
   };

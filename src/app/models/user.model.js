@@ -5,7 +5,6 @@ const Schema = mongoose.Schema;
 const User = new Schema(
   {
     full_name: { type: String },
-    username: { type: String },
     password: { type: String },
     fb_id: { type: String },
     gg_id: { type: String },
@@ -16,7 +15,7 @@ const User = new Schema(
     address: { type: String },
     image: { type: Object },
     role: { type: String },
-    is_active: { type: Boolean },
+    is_verified: { type: Boolean },
     created_at: { type: String },
     updated_at: { type: String },
   },

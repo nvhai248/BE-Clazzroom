@@ -14,6 +14,7 @@ const imageStore = require("../storages/image.store");
 const {
   sendVerificationEmail,
   sendRenewPwEmail,
+  sendRequireResetPw,
 } = require("../../configs/nodemailer");
 const { generatePassword } = require("../utils/users.helper");
 
@@ -25,47 +26,56 @@ class USerController {
     if (!user) {
       res.status(404).send(errorNotFound("User"));
     }
-    delete user.password;
+
     res.status(200).send(simpleSuccessResponse(user, "ok"));
   }
 
-  // register POST /user/register
+  // register POST /api/users/register
   async register(req, res) {
     var data = req.body;
-    if (!data.username || !data.password) {
+    if (!data.email || !data.password) {
       return res
         .status(400)
-        .send(errorCustom(400, "Username or password not be blank!"));
+        .send(errorCustom(400, "Email or password not be blank!"));
     }
-    const existingUser = await userStore.findUserByUsername(data.username);
+    const existingUser = await userStore.findUserByEmail(data.email);
     if (existingUser) {
-      return res.status(400).send(errorCustom(400, "Username already exists!"));
+      return res.status(400).send(errorCustom(400, "Email already exists!"));
     }
 
-    if (!data.role) {
-      data.role = "student";
-    }
-
-    data.is_active = false;
+    data.is_verified = false;
     data.password = hasher.encode(data.password);
-    userStore.createUser(data);
+    await userStore.createUser(data);
 
-    res.status(201).send(errorCustom(201, "Sign up successful!"));
+    const newUser = await userStore.findUserByEmail(data.email);
+    var verificationToken = jwt.generateToken({ userId: newUser._id }, "1h");
+
+    sendVerificationEmail(data.email, verificationToken)
+      .then(() => {
+        return res.status(201).send(errorCustom(201, "Sign up successful!"));
+      })
+      .catch((error) => {
+        console.log("Error: ", error);
+        return res.status(201).send(errorCustom(201, "Sign up successful!"));
+      });
   }
 
-  // login POST /user/login
+  // login POST /api/users/login
   async login(req, res) {
     const data = req.body;
 
-    const user = await userStore.findUserByUsername(data.username);
+    const user = await userStore.findUserByEmail(data.email);
 
     if (!user || !hasher.compare(user.password, data.password)) {
       return res
         .status(400)
-        .send(errorCustom(400, "Username or password incorrect!"));
+        .send(errorCustom(400, "Email or password incorrect!"));
     }
 
-    const token = jwt.generateToken({ userId: user._id, role: user.role });
+    const token = jwt.generateToken(
+      { userId: user._id, role: user.role },
+      "7d"
+    );
     // if user re-login save new token
     // else create new token in database
 
@@ -77,7 +87,7 @@ class USerController {
     res.status(201).send(simpleSuccessResponse(token, "Sign in successfully!"));
   }
 
-  // [PATCH] /user/profile
+  // [PATCH] /api/users/profile
   async editProfile(req, res) {
     const userId = req.user.userId;
     const data = req.body;
@@ -93,7 +103,7 @@ class USerController {
       .send(simpleSuccessResponse(newData, "Successfully updated profile!"));
   }
 
-  // [DELETE] /user/logout
+  // [DELETE] /api/users/logout
   async logout(req, res) {
     const authorizationHeader = req.header("Authorization");
     let tokenStr = "";
@@ -106,7 +116,7 @@ class USerController {
     res.status(200).send(simpleSuccessResponse(null, "Sign out successfully!"));
   }
 
-  // [PATCH] /user/avatar
+  // [PATCH] /api/users/avatar
   updatedAvatar = async (req, res, next) => {
     if (!req.file) {
       res.status(400).send(errorCustom(400, "Uploaded file not found!"));
@@ -145,7 +155,7 @@ class USerController {
   };
 
   // [GET] /api/users/verify/:verificationToken
-  activeUser = async (req, res) => {
+  verifiedUser = async (req, res) => {
     var token = req.params.verificationToken;
     if (!token) {
       return res
@@ -157,8 +167,8 @@ class USerController {
       return res.status(403).send(errorInternalServer("Outdated!"));
     }
 
-    await userStore.editProfile(payload.userId, { is_active: true });
-    res.status(200).json({ message: "User is active!" });
+    await userStore.editProfile(payload.userId, { is_verified: true });
+    res.redirect(`${process.env.DOMAIN_CLIENT}/verified`);
   };
 
   // [POST] /api/users/resend-verification
@@ -170,50 +180,47 @@ class USerController {
     }
 
     var userId = req.user.userId;
-    var verificationToken = jwt.generateVerificationToken({ userId: userId });
+    var verificationToken = jwt.generateToken({ userId: userId }, "1h");
 
-    let isSended = await sendVerificationEmail(email, verificationToken);
-
-    if (!isSended) {
-      return res
-        .status(403)
-        .send(errorCustom(403, "Can't send verification email!"));
-    }
-    res
-      .status(200)
-      .json({ message: "Resend verification email successfully!" });
+    sendVerificationEmail(email, verificationToken)
+      .then(() => {
+        res
+          .status(200)
+          .json({ message: "Resend verification email successfully!" });
+      })
+      .catch((error) => {
+        res
+          .status(403)
+          .send(errorCustom(403, "Can't send verification email!"));
+      });
   };
 
   // [POST] /api/users/send-email-renew-pw
   requireSendEmailRenewPw = async (req, res) => {
-    const { username } = req.body;
+    const { email } = req.body;
 
-    if (!username) {
+    if (!email) {
       return res.status(403).send(errorBadRequest(403, "Invalid email!"));
     }
 
-    var user = await userStore.findUserByUsername(username);
+    var user = await userStore.findUserByEmail(email);
     if (!user) {
-      return res.status(403).send(errorBadRequest(403, "Username not found!"));
+      return res.status(403).send(errorBadRequest(403, "Email not found!"));
     }
 
     var newPw = generatePassword();
 
-    let isSended = await sendRenewPwEmail(user.email, newPw);
-
-    if (!isSended) {
-      return res
-        .status(403)
-        .send(errorCustom(403, "Can't send verification email!"));
-    }
-
-    newPw = hasher.encode(newPw);
-    userStore.editProfile(user._id, { password: newPw });
-
-    res.status(200).json({ message: "Success send email renew password!" });
+    sendRenewPwEmail(user.email, newPw)
+      .then(() => {
+        userStore.editProfile(user._id, { password: hasher.encode(newPw) });
+        res.status(200).json({ message: "Send email successfully!" });
+      })
+      .catch((error) => {
+        res.status(403).send(errorCustom(403, "Can't send  email!"));
+      });
   };
 
-  // [PATCH] /api/user/change-pw
+  // [PATCH] /api/users/change-pw
   changePw = async (req, res) => {
     const { password, newPassword } = req.body;
 
@@ -224,15 +231,50 @@ class USerController {
       return res.status(403).send(errorBadRequest(403, "User not found!"));
     }
 
-    if (user.password != password) {
+    if (!hasher.compare(user.password, password)) {
       return res
         .status(403)
         .send(errorBadRequest(403, "Password is incorrect!"));
     }
 
-    newPassword = hasher.encode(newPassword);
-    await userStore.editProfile(userInfo.suerId, newPassword);
-    res.send(200).json({ message: "Password changed successfully!" });
+    var newPw = hasher.encode(newPassword);
+    await userStore.editProfile(userInfo.userId, { password: newPw });
+
+    var tokenForResetPw = jwt.generateToken({ userId: userInfo.userId }, "1d");
+
+    sendRequireResetPw(user.email, tokenForResetPw)
+      .then(() => {
+        return res
+          .status(200)
+          .json({ message: "Password changed successfully!" });
+      })
+      .catch((error) => {
+        console.log(error);
+        return res
+          .status(200)
+          .json({ message: "Password changed successfully!" });
+      });
+  };
+
+  // [PATCH] /api/users/resetPw/:tokenForResetPw
+  resetPw = async (req, res) => {
+    const { newPassword } = req.body;
+
+    const tokenForResetPw = req.params.tokenForResetPw;
+
+    const payload = jwt.verifyToken(tokenForResetPw);
+
+    if (!payload) {
+      return res
+        .status(401)
+        .send(errorCustom(401, "The token for reset password is not valid!"));
+    }
+
+    await userStore.editProfile(payload.userId, {
+      password: hasher.encode(newPassword),
+    });
+
+    res.status(200).json({ message: "Reset password successfully!" });
   };
 }
 
