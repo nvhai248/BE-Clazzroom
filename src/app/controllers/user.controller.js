@@ -292,6 +292,7 @@ class USerController {
     var user = await userStore.findUserByFbId(data.fb_id);
     if (!user) {
       return res.status(401).json({
+        status: 401,
         message: "Unauthorized!",
       });
     }
@@ -320,6 +321,7 @@ class USerController {
     var user = await userStore.findUserByGgId(data.gg_id);
     if (!user) {
       return res.status(401).json({
+        status: 401,
         message: "Unauthorized!",
       });
     }
