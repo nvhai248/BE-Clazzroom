@@ -68,8 +68,8 @@ class USerController {
 
     if (!user || !hasher.compare(user.password, data.password)) {
       return res
-        .status(400)
-        .send(errorCustom(400, "Email or password incorrect!"));
+        .status(401)
+        .send(errorCustom(401, "Email or password incorrect!"));
     }
 
     const token = jwt.generateToken(
