@@ -172,17 +172,15 @@ class USerController {
   verifiedUser = async (req, res) => {
     var token = req.params.verificationToken;
     if (!token) {
-      return res
-        .status(403)
-        .send(errorInternalServer("Invalid verification token!"));
+      return res.redirect(`${process.env.DOMAIN_CLIENT}/verify-fail`);
     }
     var payload = jwt.verifyToken(token);
     if (!payload) {
-      return res.status(403).send(errorInternalServer("Outdated!"));
+      return res.redirect(`${process.env.DOMAIN_CLIENT}/verify-fail`);
     }
 
     await userStore.editProfile(payload.userId, { is_verified: true });
-    res.redirect(`${process.env.DOMAIN_CLIENT}/verified`);
+    res.redirect(`${process.env.DOMAIN_CLIENT}/verification`);
   };
 
   // [POST] /api/users/resend-verification
