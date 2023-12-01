@@ -33,18 +33,25 @@ class USerController {
   // register POST /api/users/register
   async register(req, res) {
     var data = req.body;
-    if (!data.email || !data.password) {
+    if (!data.email) {
       return res
         .status(400)
-        .send(errorCustom(400, "Email or password not be blank!"));
+        .send(errorCustom(400, "Email is required"));
     }
+
+    if (!data.password && !data.gg_id && !data.fb_id) {
+      return res
+        .status(400)
+        .send(errorCustom(400, "Password is required"));
+    }
+
     const existingUser = await userStore.findUserByEmail(data.email);
     if (existingUser) {
       return res.status(400).send(errorCustom(400, "Email already exists!"));
     }
 
     data.is_verified = false;
-    data.password = hasher.encode(data.password);
+    data.password = data.password ? data.password = hasher.encode(data.password) : "";
     await userStore.createUser(data);
 
     const newUser = await userStore.findUserByEmail(data.email);
