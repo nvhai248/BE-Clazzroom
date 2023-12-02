@@ -98,7 +98,7 @@ const sendRequireResetPw = async (email, tokenForResetPw) => {
         <p style="font-size: 16px; color: #555; text-align: center;">Hi there,</p>
         <p style="font-size: 16px; color: #555;">We have noticed that your password has recently been changed. If this wasn't done by you, please reset your password by clicking the button below:</p>
         <div style="text-align: center; margin-top: 20px;">
-          <a href="${process.env.DOMAIN_CLIENT}/resetPw/${tokenForResetPw}" style="display: inline-block; padding: 12px 24px; font-size: 16px; text-decoration: none; background-color: #007bff; color: #fff; border-radius: 5px;">Reset Password</a>
+          <a href="${process.env.DOMAIN_CLIENT}/resetPw?token_id=${tokenForResetPw}" style="display: inline-block; padding: 12px 24px; font-size: 16px; text-decoration: none; background-color: #007bff; color: #fff; border-radius: 5px;">Reset Password</a>
         </div>
         <p style="font-size: 14px; color: #999; text-align: center; margin-top: 20px;">If you did not request this change, please reset your password immediately.</p>
         <p style="font-size: 14px; color: #999; text-align: center; margin-top: 20px;">Please note: This link will expire in 15 minutes.</p>

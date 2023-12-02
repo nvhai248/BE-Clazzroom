@@ -272,7 +272,7 @@ class USerController {
   // [PATCH] /api/users/resetPw
   resetPw = async (req, res) => {
     const { newPassword, token } = req.body;
-    
+
     const payload = jwt.verifyToken(token);
 
     if (!payload) {
