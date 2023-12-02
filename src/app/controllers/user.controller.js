@@ -18,6 +18,7 @@ const {
   sendRequireResetPw,
 } = require("../../configs/nodemailer");
 const { generatePassword } = require("../utils/users.helper");
+const blackTokenStore = require("../storages/blackToken.store");
 
 class USerController {
   // get all users
@@ -223,6 +224,9 @@ class USerController {
 
     var newPw = generatePassword();
 
+    // after resend email delete all black tokens 
+    await blackTokenStore.deleteTokensByUserId(user._id);
+
     sendRenewPwEmail(user.email, newPw)
       .then(() => {
         userStore.editProfile(user._id, { password: hasher.encode(newPw) });
@@ -273,6 +277,11 @@ class USerController {
   resetPw = async (req, res) => {
     const { newPassword, token } = req.body;
 
+    // if token in the black list => return error
+    if (blackTokenStore.findByToken(token)) {
+      return res.status(403).send(errorCustom(403, "Token is blocked!"));
+    }
+
     const payload = jwt.verifyToken(token);
 
     if (!payload) {
@@ -284,6 +293,8 @@ class USerController {
     await userStore.editProfile(payload.userId, {
       password: hasher.encode(newPassword),
     });
+
+    await blackTokenStore.createToken({ userId: payload.userId, token: token });
 
     res.status(200).json({ message: "Reset password successfully!" });
   };
