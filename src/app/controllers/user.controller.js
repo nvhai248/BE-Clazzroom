@@ -8,6 +8,7 @@ const {
   errorCustom,
   errorBadRequest,
   errorInternalServer,
+  errorUnauthorized,
 } = require("../views/error");
 const { uploadToS3, isImage, getImageInfo } = require("../utils/image.helper");
 const imageStore = require("../storages/image.store");
@@ -34,15 +35,11 @@ class USerController {
   async register(req, res) {
     var data = req.body;
     if (!data.email) {
-      return res
-        .status(400)
-        .send(errorCustom(400, "Email is required"));
+      return res.status(400).send(errorCustom(400, "Email is required"));
     }
 
     if (!data.password && !data.gg_id && !data.fb_id) {
-      return res
-        .status(400)
-        .send(errorCustom(400, "Password is required"));
+      return res.status(400).send(errorCustom(400, "Password is required"));
     }
 
     const existingUser = await userStore.findUserByEmail(data.email);
@@ -51,7 +48,9 @@ class USerController {
     }
 
     data.is_verified = false;
-    data.password = data.password ? data.password = hasher.encode(data.password) : "";
+    data.password = data.password
+      ? (data.password = hasher.encode(data.password))
+      : "";
     await userStore.createUser(data);
 
     const newUser = await userStore.findUserByEmail(data.email);
@@ -168,19 +167,21 @@ class USerController {
     }
   };
 
-  // [GET] /api/users/verify/:verificationToken
+  // [POST] /api/users/verify
   verifiedUser = async (req, res) => {
-    var token = req.params.verificationToken;
+    var { token } = req.body;
     if (!token) {
-      return res.redirect(`${process.env.DOMAIN_CLIENT}/verify-fail`);
+      return res.status(401).send(errorUnauthorized());
     }
     var payload = jwt.verifyToken(token);
     if (!payload) {
-      return res.redirect(`${process.env.DOMAIN_CLIENT}/verify-fail`);
+      return res.status(401).send(errorUnauthorized());
     }
-
     await userStore.editProfile(payload.userId, { is_verified: true });
-    res.redirect(`${process.env.DOMAIN_CLIENT}/verification`);
+    return res.status(200).json({
+      status: 200,
+      message: "Verified",
+    });
   };
 
   // [POST] /api/users/resend-verification
@@ -268,13 +269,11 @@ class USerController {
       });
   };
 
-  // [PATCH] /api/users/resetPw/:tokenForResetPw
+  // [PATCH] /api/users/resetPw
   resetPw = async (req, res) => {
-    const { newPassword } = req.body;
-
-    const tokenForResetPw = req.params.tokenForResetPw;
-
-    const payload = jwt.verifyToken(tokenForResetPw);
+    const { newPassword, token } = req.body;
+    
+    const payload = jwt.verifyToken(token);
 
     if (!payload) {
       return res

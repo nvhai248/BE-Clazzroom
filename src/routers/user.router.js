@@ -7,7 +7,7 @@ const uploadImage = require("../app/middlewares/uploadImage");
 
 router.post("/google-oauth", userRouter.googleOAuth);
 router.post("/facebook-oauth", userRouter.facebookOAuth);
-router.patch("/resetPw/:tokenForResetPw", userRouter.resetPw);
+router.patch("/resetPw", userRouter.resetPw);
 router.patch("/change-pw", authenticate, userRouter.changePw);
 router.post("/send-email-renew-pw", userRouter.requireSendEmailRenewPw);
 router.post(
@@ -15,7 +15,7 @@ router.post(
   authenticate,
   userRouter.resendVerification
 );
-router.get("/verify/:verificationToken", userRouter.verifiedUser);
+router.post("/verify", userRouter.verifiedUser);
 router.delete("/logout", authenticate, userRouter.logout);
 router.patch("/profile", authenticate, userRouter.editProfile);
 router.patch("/avatar", authenticate, uploadImage, userRouter.updatedAvatar);
