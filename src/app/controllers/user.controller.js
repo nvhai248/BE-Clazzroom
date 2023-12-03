@@ -187,16 +187,12 @@ class USerController {
 
   // [POST] /api/users/resend-verification
   resendVerification = async (req, res) => {
-    const { email } = req.body;
-
-    if (!email) {
-      return res.status(403).send(errorBadRequest(403, "Invalid email!"));
-    }
-
     var userId = req.user.userId;
     var verificationToken = jwt.generateToken({ userId: userId }, "1h");
 
-    sendVerificationEmail(email, verificationToken)
+    var user = await userStore.findUserById(userId);
+
+    sendVerificationEmail(user.email, verificationToken)
       .then(() => {
         res
           .status(200)
@@ -224,7 +220,7 @@ class USerController {
 
     var newPw = generatePassword();
 
-    // after resend email delete all black tokens 
+    // after resend email delete all black tokens
     await blackTokenStore.deleteTokensByUserId(user._id);
 
     sendRenewPwEmail(user.email, newPw)
