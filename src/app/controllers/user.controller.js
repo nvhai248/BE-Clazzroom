@@ -331,11 +331,14 @@ class USerController {
     );
 
     await tokenStore.createToken({ userId: user._id, token: token });
-    return res.status(200).json({
-      message: "Login successful!",
-      token: token,
-      user: user,
-    });
+    res
+      .status(201)
+      .send(
+        simpleSuccessResponse(
+          { token: token, user: user },
+          "Sign in successfully!"
+        )
+      );
   };
 
   // [POST] google-oauth
@@ -361,11 +364,6 @@ class USerController {
     );
 
     await tokenStore.createToken({ userId: user._id, token: token });
-    // return res.status(200).json({
-    //   message: "Login successful!",
-    //   token: token,
-    //   user: user,
-    // });
 
     res
       .status(201)
