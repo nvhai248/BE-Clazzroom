@@ -16,6 +16,7 @@ const {
   sendVerificationEmail,
   sendRenewPwEmail,
   sendRequireResetPw,
+  sendRequireResetPwAfterChangePw
 } = require("../../configs/nodemailer");
 const { generatePassword } = require("../utils/users.helper");
 const blackTokenStore = require("../storages/blackToken.store");
@@ -267,7 +268,7 @@ class USerController {
 
     var tokenForResetPw = jwt.generateToken({ userId: userInfo.userId }, "1d");
 
-    sendRequireResetPw(user.email, tokenForResetPw)
+    sendRequireResetPwAfterChangePw(user.email, tokenForResetPw)
       .then(() => {
         return res
           .status(200)
@@ -383,7 +384,7 @@ class USerController {
     // after resend email delete all black tokens
     await blackTokenStore.deleteTokensByUserId(user._id);
 
-    var tokenForResetPw = jwt.generateToken({ userId: userInfo.userId }, "1d");
+    var tokenForResetPw = jwt.generateToken({ userId: user._id }, "1d");
 
     sendRequireResetPw(user.email, tokenForResetPw)
       .then(() => {

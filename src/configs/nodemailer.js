@@ -1,7 +1,3 @@
-const fs = require("fs").promises;
-const path = require("path");
-const process = require("process");
-const { authenticate } = require("@google-cloud/local-auth");
 const nodemailer = require("nodemailer");
 const { google } = require("googleapis");
 
@@ -102,7 +98,7 @@ const sendRenewPwEmail = async (email, newPw) => {
   }
 };
 
-const sendRequireResetPw = async (email, tokenForResetPw) => {
+const sendRequireResetPwAfterChangePw = async (email, tokenForResetPw) => {
   const transporter = await NewTransporter();
 
   let mailOptions = {
@@ -130,8 +126,36 @@ const sendRequireResetPw = async (email, tokenForResetPw) => {
   }
 };
 
+const sendRequireResetPw = async (email, tokenForResetPw) => {
+  const transporter = await NewTransporter();
+
+  let mailOptions = {
+    from: process.env.SITE_EMAIL_ADDRESS,
+    to: email,
+    subject: "Password Reset Request",
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto;">
+        <h1 style="color: #333; text-align: center;">Password Reset Request</h1>
+        <p style="font-size: 16px; color: #555; text-align: center;">Hi there,</p>
+        <p style="font-size: 16px; color: #555; text-align: center;">Please reset your password by clicking the button below:</p>
+        <div style="text-align: center; margin-top: 20px;">
+          <a href="${process.env.DOMAIN_CLIENT}/reset-password?token_id=${tokenForResetPw}" style="display: inline-block; padding: 12px 24px; font-size: 16px; text-decoration: none; background-color: #007bff; color: #fff; border-radius: 5px;">Reset Password</a>
+        </div>
+        <p style="font-size: 14px; color: #999; text-align: center; margin-top: 20px;">Please note: This link will expire in 1 day.</p>
+      </div>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 module.exports = {
   sendVerificationEmail,
   sendRenewPwEmail,
   sendRequireResetPw,
+  sendRequireResetPwAfterChangePw,
 };
