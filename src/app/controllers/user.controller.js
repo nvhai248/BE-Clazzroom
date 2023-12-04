@@ -174,11 +174,23 @@ class USerController {
     if (!token) {
       return res.status(403).send(errorBadRequest(403, "Invalid token!"));
     }
+
+    const checkIsBlock = await blackTokenStore.findByToken(token);
+    if (checkIsBlock) {
+      return res.status(403).send(errorBadRequest(403, "Token blocked!"));
+    }
+
     var payload = jwt.verifyToken(token);
     if (!payload) {
       return res.status(401).send(errorUnauthorized());
     }
     await userStore.editProfile(payload.userId, { is_verified: true });
+
+    blackTokenStore.createToken({
+      userId: payload.userId,
+      token: token,
+    });
+
     return res.status(200).json({
       status: 200,
       message: "Verified",
