@@ -1,5 +1,7 @@
 const userRouter = require("./user.router");
 const uploadImageRouter = require("./image.router");
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require("../../swagger.json");
 
 function Routers(app) {
   app.use("/api/users", userRouter);
@@ -7,6 +9,10 @@ function Routers(app) {
   app.get("/api/", (req, res) => {
     res.send({ message: "Deploy Ok!" });
   });
+
+  // swagger
+  app.use("/api-docs", swaggerUi.serve);
+  app.get("/api-docs", swaggerUi.setup(swaggerDocument));
 }
 
 module.exports = Routers;

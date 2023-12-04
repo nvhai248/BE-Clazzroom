@@ -44,9 +44,22 @@ async function NewTransporter() {
   }
 }
 
-const sendVerificationEmail = async (email, verificationToken) => {
+const sendEmail = async (mailOptions) => {
   const transporter = await NewTransporter();
 
+  try {
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error(error);
+        return; //Not wait result => return
+      }
+    });
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const sendVerificationEmail = async (email, verificationToken) => {
   let mailOptions = {
     from: process.env.SITE_EMAIL_ADDRESS,
     to: email,
@@ -64,16 +77,10 @@ const sendVerificationEmail = async (email, verificationToken) => {
     `,
   };
 
-  try {
-    await transporter.sendMail(mailOptions);
-  } catch (error) {
-    console.error(error);
-  }
+  sendEmail(mailOptions);
 };
 
 const sendRenewPwEmail = async (email, newPw) => {
-  const transporter = await NewTransporter();
-
   let mailOptions = {
     from: process.env.SITE_EMAIL_ADDRESS,
     to: email,
@@ -91,16 +98,10 @@ const sendRenewPwEmail = async (email, newPw) => {
     `,
   };
 
-  try {
-    await transporter.sendMail(mailOptions);
-  } catch (error) {
-    console.error(error);
-  }
+  sendEmail(mailOptions);
 };
 
 const sendRequireResetPwAfterChangePw = async (email, tokenForResetPw) => {
-  const transporter = await NewTransporter();
-
   let mailOptions = {
     from: process.env.SITE_EMAIL_ADDRESS,
     to: email,
@@ -119,16 +120,10 @@ const sendRequireResetPwAfterChangePw = async (email, tokenForResetPw) => {
     `,
   };
 
-  try {
-    await transporter.sendMail(mailOptions);
-  } catch (error) {
-    console.error(error);
-  }
+  sendEmail(mailOptions);
 };
 
 const sendRequireResetPw = async (email, tokenForResetPw) => {
-  const transporter = await NewTransporter();
-
   let mailOptions = {
     from: process.env.SITE_EMAIL_ADDRESS,
     to: email,
@@ -146,11 +141,7 @@ const sendRequireResetPw = async (email, tokenForResetPw) => {
     `,
   };
 
-  try {
-    await transporter.sendMail(mailOptions);
-  } catch (error) {
-    console.error(error);
-  }
+  sendEmail(mailOptions);
 };
 
 module.exports = {

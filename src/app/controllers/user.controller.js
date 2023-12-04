@@ -22,7 +22,7 @@ const { generatePassword } = require("../utils/users.helper");
 const blackTokenStore = require("../storages/blackToken.store");
 
 class USerController {
-  // get all users
+  // [GET] api/users/profile
   async getUser(req, res) {
     var userId = req.user.userId;
     const user = await userStore.findUserById(userId);
@@ -87,7 +87,7 @@ class USerController {
     // if user re-login save new token
     // else create new token in database
 
-    await tokenStore.createToken({
+    tokenStore.createToken({
       token: token,
       userId: data._id,
     });
@@ -127,7 +127,7 @@ class USerController {
       tokenStr = parts[1];
     }
 
-    await tokenStore.deleteTokenByTokenStr(tokenStr);
+    tokenStore.deleteTokenByTokenStr(tokenStr);
     res.status(200).send(simpleSuccessResponse(null, "Sign out successfully!"));
   }
 
@@ -156,7 +156,7 @@ class USerController {
       var userId = req.user.userId;
       imageInfo.created_by = userId;
 
-      await imageStore.create(imageInfo);
+      imageStore.create(imageInfo);
       await userStore.editProfile(userId, { image: imageInfo });
       var user = await userStore.findUserById(userId);
       res
@@ -185,7 +185,7 @@ class USerController {
     if (!payload) {
       return res.status(401).send(errorUnauthorized());
     }
-    await userStore.editProfile(payload.userId, { is_verified: true });
+    userStore.editProfile(payload.userId, { is_verified: true });
 
     blackTokenStore.createToken({
       userId: payload.userId,
@@ -234,7 +234,7 @@ class USerController {
     var newPw = generatePassword();
 
     // after resend email delete all black tokens
-    await blackTokenStore.deleteTokensByUserId(user._id);
+    blackTokenStore.deleteTokensByUserId(user._id);
 
     sendRenewPwEmail(user.email, newPw)
       .then(() => {
@@ -264,7 +264,7 @@ class USerController {
     }
 
     var newPw = hasher.encode(newPassword);
-    await userStore.editProfile(userInfo.userId, { password: newPw });
+    userStore.editProfile(userInfo.userId, { password: newPw });
 
     var tokenForResetPw = jwt.generateToken({ userId: userInfo.userId }, "1d");
 
@@ -285,7 +285,7 @@ class USerController {
   // [PATCH] /api/users/resetPw
   resetPw = async (req, res) => {
     const { newPassword, token } = req.body;
-    const checkIsBlock = await blackTokenStore.findByToken(token)
+    const checkIsBlock = await blackTokenStore.findByToken(token);
     // if token in the black list => return error
     if (checkIsBlock) {
       return res.status(403).send(errorCustom(403, "Token is blocked!"));
@@ -299,11 +299,11 @@ class USerController {
         .send(errorCustom(401, "The token for reset password is not valid!"));
     }
 
-    await userStore.editProfile(payload.userId, {
+    userStore.editProfile(payload.userId, {
       password: hasher.encode(newPassword),
     });
 
-    await blackTokenStore.createToken({ userId: payload.userId, token: token });
+    blackTokenStore.createToken({ userId: payload.userId, token: token });
 
     res.status(200).json({ message: "Reset password successfully!" });
   };
@@ -330,7 +330,7 @@ class USerController {
       "7d"
     );
 
-    await tokenStore.createToken({ userId: user._id, token: token });
+    tokenStore.createToken({ userId: user._id, token: token });
     return res.status(200).json({
       message: "Login successful!",
       token: token,
@@ -360,7 +360,7 @@ class USerController {
       "7d"
     );
 
-    await tokenStore.createToken({ userId: user._id, token: token });
+    tokenStore.createToken({ userId: user._id, token: token });
     return res.status(200).json({
       message: "Login successful!",
       token: token,
@@ -382,7 +382,7 @@ class USerController {
     }
 
     // after resend email delete all black tokens
-    await blackTokenStore.deleteTokensByUserId(user._id);
+    blackTokenStore.deleteTokensByUserId(user._id);
 
     var tokenForResetPw = jwt.generateToken({ userId: user._id }, "1d");
 

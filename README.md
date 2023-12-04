@@ -23,11 +23,13 @@ This project serves as a straightforward back-end solution for the Web Advanced 
 
 ## APIs
 
+Sure, here is a description of the API endpoints in markdown format:
+
 - `POST api/users/login`: Sign in to the application.
   
-- `POST api/users/register`: Sign up to the application
+- `POST api/users/register`: Sign up to the application.
   
-- `DELETE api/users/logout`: Log out from the application
+- `DELETE api/users/logout`: Log out from the application.
   
 - `GET api/users/profile`: Get the user's profile.
   
@@ -50,3 +52,5 @@ This project serves as a straightforward back-end solution for the Web Advanced 
 - `POST api/users/google-oauth` : OAuth by google.
 
 - `POST api/users/facebook-oauth` : OAuth by facebook.
+
+- `POST /api/users/send-email-reset-pw` : Send the email reset password.
