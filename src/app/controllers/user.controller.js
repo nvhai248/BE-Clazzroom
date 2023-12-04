@@ -172,7 +172,7 @@ class USerController {
   verifiedUser = async (req, res) => {
     var { token } = req.body;
     if (!token) {
-      return res.status(401).send(errorUnauthorized());
+      return res.status(403).send(errorBadRequest(403, "Invalid token!"));
     }
     var payload = jwt.verifyToken(token);
     if (!payload) {
@@ -321,6 +321,7 @@ class USerController {
     return res.status(200).json({
       message: "Login successful!",
       token: token,
+      user: user,
     });
   };
 
@@ -350,6 +351,7 @@ class USerController {
     return res.status(200).json({
       message: "Login successful!",
       token: token,
+      user: user,
     });
   };
 }

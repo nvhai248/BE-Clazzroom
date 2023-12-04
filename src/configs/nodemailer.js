@@ -1,6 +1,8 @@
 const nodemailer = require("nodemailer");
 const { google } = require("googleapis");
 
+let refreshToken = process.env.NODEMAILER_REFRESH_TOKEN;
+
 const oAuth2Client = new google.auth.OAuth2(
   process.env.MAIL_CLIENT_ID,
   process.env.MAIL_CLIENT_SECRET,
@@ -8,27 +10,38 @@ const oAuth2Client = new google.auth.OAuth2(
 );
 
 oAuth2Client.setCredentials({
-  refresh_token: process.env.NODEMAILER_REFRESH_TOKEN,
+  refresh_token: refreshToken,
+});
+
+oAuth2Client.on("tokens", (tokens) => {
+  if (tokens.refresh_token) {
+    console.log("Received new refresh token:", tokens.refresh_token);
+    refreshToken = tokens.refresh_token;
+  }
 });
 
 async function NewTransporter() {
-  const ACCESS_TOKEN = await oAuth2Client.getAccessToken();
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      type: "OAuth2",
-      user: process.env.SITE_EMAIL_ADDRESS,
-      accessToken: ACCESS_TOKEN,
-      clientId: process.env.MAIL_CLIENT_ID,
-      clientSecret: process.env.MAIL_CLIENT_SECRET,
-      refreshToken: process.env.NODEMAILER_REFRESH_TOKEN,
-    },
-    tls: {
-      rejectUnauthorized: true,
-    },
-  });
+  try {
+    const ACCESS_TOKEN = await oAuth2Client.getAccessToken();
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        type: "OAuth2",
+        user: process.env.SITE_EMAIL_ADDRESS,
+        accessToken: ACCESS_TOKEN,
+        clientId: process.env.MAIL_CLIENT_ID,
+        clientSecret: process.env.MAIL_CLIENT_SECRET,
+        refreshToken: process.env.NODEMAILER_REFRESH_TOKEN,
+      },
+      tls: {
+        rejectUnauthorized: true,
+      },
+    });
 
-  return transporter;
+    return transporter;
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 const sendVerificationEmail = async (email, verificationToken) => {
