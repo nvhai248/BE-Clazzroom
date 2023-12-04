@@ -16,7 +16,7 @@ const {
   sendVerificationEmail,
   sendRenewPwEmail,
   sendRequireResetPw,
-  sendRequireResetPwAfterChangePw
+  sendRequireResetPwAfterChangePw,
 } = require("../../configs/nodemailer");
 const { generatePassword } = require("../utils/users.helper");
 const blackTokenStore = require("../storages/blackToken.store");
@@ -285,9 +285,9 @@ class USerController {
   // [PATCH] /api/users/resetPw
   resetPw = async (req, res) => {
     const { newPassword, token } = req.body;
-
+    const checkIsBlock = await blackTokenStore.findByToken(token)
     // if token in the black list => return error
-    if (blackTokenStore.findByToken(token)) {
+    if (checkIsBlock) {
       return res.status(403).send(errorCustom(403, "Token is blocked!"));
     }
 
