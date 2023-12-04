@@ -354,6 +354,33 @@ class USerController {
       user: user,
     });
   };
+
+  // [POST] /api/users/send-email-reset-pw
+  requireSendEmailResetPw = async (req, res) => {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(403).send(errorBadRequest(403, "Invalid email!"));
+    }
+
+    var user = await userStore.findUserByEmail(email);
+    if (!user) {
+      return res.status(403).send(errorBadRequest(403, "Email not found!"));
+    }
+
+    // after resend email delete all black tokens
+    await blackTokenStore.deleteTokensByUserId(user._id);
+
+    var tokenForResetPw = jwt.generateToken({ userId: userInfo.userId }, "1d");
+
+    sendRequireResetPw(user.email, tokenForResetPw)
+      .then(() => {
+        res.status(200).json({ message: "Send email successfully!" });
+      })
+      .catch((error) => {
+        res.status(403).send(errorCustom(403, "Can't send  email!"));
+      });
+  };
 }
 
 module.exports = new USerController();
