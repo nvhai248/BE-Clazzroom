@@ -10,6 +10,9 @@
         "/api/users/login": {
             "post": {
                 "summary": "Sign in to the application",
+                "tags": [
+                    "Users"
+                ],
                 "parameters": [
                     {
                         "name": "email",
@@ -28,59 +31,7 @@
                     "200": {
                         "description": "Successfully signed in",
                         "schema": {
-                            "type": "object",
-                            "properties": {
-                                "token": {
-                                    "type": "string"
-                                },
-                                "user": {
-                                    "type": "object",
-                                    "properties": {
-                                        "full_name": {
-                                            "type": "string"
-                                        },
-                                        "password": {
-                                            "type": "string"
-                                        },
-                                        "fb_id": {
-                                            "type": "string"
-                                        },
-                                        "gg_id": {
-                                            "type": "string"
-                                        },
-                                        "email": {
-                                            "type": "string"
-                                        },
-                                        "phone_number": {
-                                            "type": "string"
-                                        },
-                                        "birthday": {
-                                            "type": "string"
-                                        },
-                                        "social_id": {
-                                            "type": "string"
-                                        },
-                                        "address": {
-                                            "type": "string"
-                                        },
-                                        "image": {
-                                            "type": "object"
-                                        },
-                                        "role": {
-                                            "type": "string"
-                                        },
-                                        "is_verified": {
-                                            "type": "boolean"
-                                        },
-                                        "created_at": {
-                                            "type": "string"
-                                        },
-                                        "updated_at": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
+                            "$ref": "#/definitions/UserDetails"
                         }
                     },
                     "401": {
@@ -92,6 +43,9 @@
         "/api/users/register": {
             "post": {
                 "summary": "Sign up to the application",
+                "tags": [
+                    "Users"
+                ],
                 "parameters": [
                     {
                         "name": "email",
@@ -127,6 +81,9 @@
         },
         "/api/users/logout": {
             "delete": {
+                "tags": [
+                    "Users"
+                ],
                 "summary": "Log out from the application",
                 "parameters": [
                     {
@@ -147,6 +104,9 @@
         "/api/users/profile": {
             "get": {
                 "summary": "Get user's profile",
+                "tags": [
+                    "Users"
+                ],
                 "description": "Endpoint to retrieve the user's profile.",
                 "parameters": [
                     {
@@ -165,61 +125,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "user": {
-                                            "type": "object",
-                                            "description": "User information",
-                                            "properties": {
-                                                "full_name": {
-                                                    "type": "string"
-                                                },
-                                                "password": {
-                                                    "type": "string"
-                                                },
-                                                "fb_id": {
-                                                    "type": "string"
-                                                },
-                                                "gg_id": {
-                                                    "type": "string"
-                                                },
-                                                "email": {
-                                                    "type": "string"
-                                                },
-                                                "phone_number": {
-                                                    "type": "string"
-                                                },
-                                                "birthday": {
-                                                    "type": "string"
-                                                },
-                                                "social_id": {
-                                                    "type": "string"
-                                                },
-                                                "address": {
-                                                    "type": "string"
-                                                },
-                                                "image": {
-                                                    "type": "object"
-                                                },
-                                                "role": {
-                                                    "type": "string"
-                                                },
-                                                "is_verified": {
-                                                    "type": "boolean"
-                                                },
-                                                "created_at": {
-                                                    "type": "string"
-                                                },
-                                                "updated_at": {
-                                                    "type": "string"
-                                                }
-                                            }
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "description": "Success message"
-                                        }
-                                    }
+                                    "$ref": "#/definitions/UserDetails"
                                 }
                             }
                         }
@@ -228,101 +134,12 @@
                         "description": "User not found"
                     }
                 }
-            }
-        },
-        "/api/users/avatar": {
-            "patch": {
-                "summary": "Update user's avatar",
-                "description": "Endpoint for updating the user's avatar.",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "parameters": [
-                    {
-                        "name": "avatar",
-                        "in": "formData",
-                        "type": "file",
-                        "required": true,
-                        "description": "Image file to upload as the user's avatar"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successfully updated user's avatar",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "user": {
-                                            "type": "object",
-                                            "description": "Updated user information",
-                                            "properties": {
-                                                "full_name": {
-                                                    "type": "string"
-                                                },
-                                                "password": {
-                                                    "type": "string"
-                                                },
-                                                "fb_id": {
-                                                    "type": "string"
-                                                },
-                                                "gg_id": {
-                                                    "type": "string"
-                                                },
-                                                "email": {
-                                                    "type": "string"
-                                                },
-                                                "phone_number": {
-                                                    "type": "string"
-                                                },
-                                                "birthday": {
-                                                    "type": "string"
-                                                },
-                                                "social_id": {
-                                                    "type": "string"
-                                                },
-                                                "address": {
-                                                    "type": "string"
-                                                },
-                                                "image": {
-                                                    "type": "object"
-                                                },
-                                                "role": {
-                                                    "type": "string"
-                                                },
-                                                "is_verified": {
-                                                    "type": "boolean"
-                                                },
-                                                "created_at": {
-                                                    "type": "string"
-                                                },
-                                                "updated_at": {
-                                                    "type": "string"
-                                                }
-                                            }
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "description": "Success message"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request"
-                    },
-                    "500": {
-                        "description": "Internal server error"
-                    }
-                }
-            }
-        },
-        "/api/users/profile": {
+            },
             "patch": {
                 "summary": "Update user's profile",
+                "tags": [
+                    "Users"
+                ],
                 "description": "Endpoint for updating the user's profile.",
                 "parameters": [
                     {
@@ -394,67 +211,52 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "user": {
-                                            "type": "object",
-                                            "description": "Updated user information",
-                                            "properties": {
-                                                "full_name": {
-                                                    "type": "string"
-                                                },
-                                                "password": {
-                                                    "type": "string"
-                                                },
-                                                "fb_id": {
-                                                    "type": "string"
-                                                },
-                                                "gg_id": {
-                                                    "type": "string"
-                                                },
-                                                "email": {
-                                                    "type": "string"
-                                                },
-                                                "phone_number": {
-                                                    "type": "string"
-                                                },
-                                                "birthday": {
-                                                    "type": "string"
-                                                },
-                                                "social_id": {
-                                                    "type": "string"
-                                                },
-                                                "address": {
-                                                    "type": "string"
-                                                },
-                                                "image": {
-                                                    "type": "object"
-                                                },
-                                                "role": {
-                                                    "type": "string"
-                                                },
-                                                "is_verified": {
-                                                    "type": "boolean"
-                                                },
-                                                "created_at": {
-                                                    "type": "string"
-                                                },
-                                                "updated_at": {
-                                                    "type": "string"
-                                                }
-                                            }
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "description": "Success message"
-                                        }
-                                    }
+                                    "$ref": "#/definitions/UserDetails"
                                 }
                             }
                         }
                     },
                     "400": {
                         "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/api/users/avatar": {
+            "patch": {
+                "summary": "Update user's avatar",
+                "tags": [
+                    "Users"
+                ],
+                "description": "Endpoint for updating the user's avatar.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "parameters": [
+                    {
+                        "name": "avatar",
+                        "in": "formData",
+                        "type": "file",
+                        "required": true,
+                        "description": "Image file to upload as the user's avatar"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully updated user's avatar",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/ImageDetails"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "500": {
+                        "description": "Internal server error"
                     }
                 }
             }
@@ -472,6 +274,9 @@
         "/api/users/verify": {
             "post": {
                 "summary": "Verify the user",
+                "tags": [
+                    "Users"
+                ],
                 "description": "Endpoint to verify the user with a verification token.",
                 "parameters": [
                     {
@@ -517,6 +322,9 @@
         "/api/users/resend-verification": {
             "post": {
                 "summary": "Resend verification via email",
+                "tags": [
+                    "Users"
+                ],
                 "description": "Endpoint to resend the verification email to the user.",
                 "responses": {
                     "200": {
@@ -544,6 +352,9 @@
         "/api/users/send-email-renew-pw": {
             "post": {
                 "summary": "Send email to renew password",
+                "tags": [
+                    "Users"
+                ],
                 "description": "Endpoint to send an email for password renewal.",
                 "requestBody": {
                     "required": true,
@@ -591,6 +402,9 @@
         "/api/users/change-pw": {
             "patch": {
                 "summary": "Change user password",
+                "tags": [
+                    "Users"
+                ],
                 "description": "Endpoint to change user password.",
                 "requestBody": {
                     "required": true,
@@ -644,6 +458,9 @@
         "/api/users/resetPw": {
             "patch": {
                 "summary": "Reset user password",
+                "tags": [
+                    "Users"
+                ],
                 "description": "Endpoint to reset user password using a token.",
                 "requestBody": {
                     "required": true,
@@ -700,6 +517,9 @@
         "/api/users/facebook-oauth": {
             "post": {
                 "summary": "Login via Facebook OAuth",
+                "tags": [
+                    "Users"
+                ],
                 "description": "Endpoint to authenticate users via Facebook OAuth.",
                 "requestBody": {
                     "required": true,
@@ -727,23 +547,8 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "description": "Success message"
-                                        },
-                                        "token": {
-                                            "type": "string",
-                                            "description": "Generated JWT token"
-                                        },
-                                        "user": {
-                                            "type": "object",
-                                            "description": "User information",
-                                            "properties": {
-                                                "user": "...."
-                                            }
-                                        }
+                                    "schema": {
+                                        "$ref": "#/definitions/Token"
                                     }
                                 }
                             }
@@ -758,6 +563,9 @@
         "/api/users/google-oauth": {
             "post": {
                 "summary": "Login via Google OAuth",
+                "tags": [
+                    "Users"
+                ],
                 "description": "Endpoint to authenticate users via Google OAuth.",
                 "requestBody": {
                     "required": true,
@@ -785,23 +593,8 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "description": "Success message"
-                                        },
-                                        "token": {
-                                            "type": "string",
-                                            "description": "Generated JWT token"
-                                        },
-                                        "user": {
-                                            "type": "object",
-                                            "description": "User information",
-                                            "properties": {
-                                                "user": "...."
-                                            }
-                                        }
+                                    "schema": {
+                                        "$ref": "#/definitions/Token"
                                     }
                                 }
                             }
@@ -816,6 +609,9 @@
         "/api/users/send-email-reset-pw": {
             "post": {
                 "summary": "Send email for password reset",
+                "tags": [
+                    "Users"
+                ],
                 "description": "Endpoint to send an email for password reset to the specified email address.",
                 "parameters": {
                     "required": true,
@@ -853,6 +649,115 @@
                     "403": {
                         "description": "Failed to send email for password reset"
                     }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "Authentication": {
+            "type": "object",
+            "properties": {
+                "userId": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "ImageDetails": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "type": "string"
+                },
+                "width": {
+                    "type": "number"
+                },
+                "height": {
+                    "type": "number"
+                },
+                "cloud_name": {
+                    "type": "string"
+                },
+                "extension": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                }
+            }
+        },
+        "UserDetails": {
+            "type": "object",
+            "properties": {
+                "userId": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "fb_id": {
+                    "type": "string"
+                },
+                "gg_id": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "birthday": {
+                    "type": "string"
+                },
+                "social_id": {
+                    "type": "string"
+                },
+                "address": {
+                    "type": "string"
+                },
+                "image": {
+                    "type": "object"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "is_verified": {
+                    "type": "boolean"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "Token": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "description": "Success message"
+                },
+                "token": {
+                    "type": "string",
+                    "description": "Generated JWT token"
+                },
+                "user": {
+                    "type": "string",
+                    "description": "User information"
                 }
             }
         }
