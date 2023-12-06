@@ -1,9 +1,11 @@
 const userRouter = require("./user.router");
 const uploadImageRouter = require("./image.router");
+const classRouter = require("./class.router");
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("../../swagger.json");
 
 function Routers(app) {
+  app.use("/api/classes", classRouter);
   app.use("/api/users", userRouter);
   app.use("/api/uploads", uploadImageRouter);
   app.get("/api/", (req, res) => {

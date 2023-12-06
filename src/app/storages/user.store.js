@@ -2,6 +2,18 @@ const User = require("../models/user.model");
 const mongooseHelper = require("../utils/mongoose.helper");
 
 class userStore {
+  findListUserById = async (ids) => {
+    var users = [];
+
+    for (let i = 0; i < ids.length; i++) {
+      users.push(
+        mongooseHelper.mongoosesToObject(await User.findOne({ _id: ids[i] }))
+      );
+    }
+
+    return users;
+  };
+
   findUserByEmail = async (email) => {
     var user = mongooseHelper.mongoosesToObject(
       await User.findOne({ email: email })
