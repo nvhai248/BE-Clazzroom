@@ -4,12 +4,11 @@ const Schema = mongoose.Schema;
 
 const Class = new Schema(
   {
-    name: { type: String },
+    class_name: { type: String },
     description: { type: String },
     class_code: { type: String },
     room: { type: String },
     topic: { type: String },
-    term: { type: String },
     student_count: { type: Number },
     teacher_count: { type: Number },
     owner: { type: String },

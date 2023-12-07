@@ -3,8 +3,12 @@ const router = express.Router();
 
 const classRouter = require("../app/controllers/class.controller");
 const authenticate = require("../app/middlewares/authenticate");
-const { RequireRoleTeacher } = require("../app/middlewares/requireRole");
+const {
+  RequireRoleTeacher,
+  RequireInClass,
+} = require("../app/middlewares/require");
 
-router.get("/", authenticate, RequireRoleTeacher, classRouter.createNewClass);
+router.get("/:id", authenticate, RequireInClass, classRouter.findClass);
+router.post("/", authenticate, RequireRoleTeacher, classRouter.createNewClass);
 
 module.exports = router;

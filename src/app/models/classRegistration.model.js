@@ -7,6 +7,7 @@ const ClassRegistration = new Schema(
     class_id: { type: String },
     user_id: { type: String },
     role: { type: String },
+    student_id: { type: String },
     created_at: { type: String },
     updated_at: { type: String },
   },

@@ -2,6 +2,14 @@ const ClassRegistration = require("../models/classRegistration.model");
 const mongooseHelper = require("../utils/mongoose.helper");
 
 class ClassRegistrationStore {
+  findByClassIdAndUserId = async (classId, userId) => {
+    var registration = mongooseHelper.mongoosesToObject(
+      await ClassRegistration.findOne({ class_id: classId, user_id: userId })
+    );
+
+    return registration;
+  };
+
   findListStudentIdInClassByClassId = async (classId) => {
     var students = mongooseHelper.multiMongooseToObject(
       await ClassRegistration.find({ class_id: classId })
