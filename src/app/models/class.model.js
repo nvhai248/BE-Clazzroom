@@ -12,9 +12,9 @@ const Class = new Schema(
     term: { type: String },
     student_count: { type: Number },
     teacher_count: { type: Number },
+    owner: { type: String },
     created_at: { type: String },
     updated_at: { type: String },
-    created_by: { type: String },
   },
   {
     collection: "classes",

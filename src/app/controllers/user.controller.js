@@ -108,7 +108,7 @@ class USerController {
     const data = req.body;
 
     if (!userId || !data) {
-      res.status(400).send(errorBadRequest());
+      res.status(400).send(errorBadRequest("Invalid profile!"));
     }
 
     await userStore.editProfile(userId, data);
@@ -173,12 +173,12 @@ class USerController {
   verifiedUser = async (req, res) => {
     var { token } = req.body;
     if (!token) {
-      return res.status(403).send(errorBadRequest(403, "Invalid token!"));
+      return res.status(400).send(errorBadRequest("Invalid token!"));
     }
 
     const checkIsBlock = await blackTokenStore.findByToken(token);
     if (checkIsBlock) {
-      return res.status(403).send(errorBadRequest(403, "Token blocked!"));
+      return res.status(400).send(errorBadRequest("Token blocked!"));
     }
 
     var payload = jwt.verifyToken(token);
@@ -223,12 +223,12 @@ class USerController {
     const { email } = req.body;
 
     if (!email) {
-      return res.status(403).send(errorBadRequest(403, "Invalid email!"));
+      return res.status(400).send(errorBadRequest("Invalid email!"));
     }
 
     var user = await userStore.findUserByEmail(email);
     if (!user) {
-      return res.status(403).send(errorBadRequest(403, "Email not found!"));
+      return res.status(400).send(errorBadRequest("Email not found!"));
     }
 
     var newPw = generatePassword();
@@ -254,13 +254,11 @@ class USerController {
 
     var user = await userStore.findUserById(userInfo.userId);
     if (!user) {
-      return res.status(403).send(errorBadRequest(403, "User not found!"));
+      return res.status(403).send(errorCustom(403, "User not found!"));
     }
 
     if (!hasher.compare(user.password, password)) {
-      return res
-        .status(403)
-        .send(errorBadRequest(403, "Password is incorrect!"));
+      return res.status(403).send(errorCustom(403, "Password is incorrect!"));
     }
 
     var newPw = hasher.encode(newPassword);
@@ -373,12 +371,12 @@ class USerController {
     const { email } = req.body;
 
     if (!email) {
-      return res.status(403).send(errorBadRequest(403, "Invalid email!"));
+      return res.status(400).send(errorBadRequest("Invalid email!"));
     }
 
     var user = await userStore.findUserByEmail(email);
     if (!user) {
-      return res.status(403).send(errorBadRequest(403, "Email not found!"));
+      return res.status(400).send(errorBadRequest("Email not found!"));
     }
 
     // after resend email delete all black tokens

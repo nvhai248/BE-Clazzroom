@@ -13,9 +13,9 @@ function errorInternalServer(mgs) {
   };
 }
 
-function errorBadRequest(status, message) {
+function errorBadRequest(message) {
   return {
-    statusCode: status,
+    statusCode: 400,
     type: "Bad Request",
     message: message,
   };
@@ -35,10 +35,19 @@ function errorNotFound(message) {
   };
 }
 
+function errNoPermission(mgs) {
+  return {
+    statusCode: 404,
+    type: "Forbidden",
+    message: mgs,
+  };
+}
+
 module.exports = {
   errorCustom,
   errorBadRequest,
   errorUnauthorized,
   errorNotFound,
   errorInternalServer,
+  errNoPermission,
 };

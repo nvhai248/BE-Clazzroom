@@ -24,6 +24,8 @@ class ClassStore {
   createClass = async (classInfo) => {
     var newClass = new Class(classInfo);
     await newClass.save();
+
+    return newClass;
   };
 
   updateClass = async (id, newClassInfo) => {
