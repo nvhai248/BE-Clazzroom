@@ -8,6 +8,19 @@ const {
   RequireInClass,
 } = require("../app/middlewares/require");
 
+router.patch(
+  "/:id",
+  authenticate,
+  RequireRoleTeacher,
+  classRouter.editClassProfile
+);
+router.post(
+  "/:id/request-send-invitation",
+  authenticate,
+  RequireInClass,
+  classRouter.requestSendInvitation
+);
+router.post("/:id/join", authenticate, classRouter.joinClass);
 router.get("/:id", authenticate, RequireInClass, classRouter.findClass);
 router.post("/", authenticate, RequireRoleTeacher, classRouter.createNewClass);
 

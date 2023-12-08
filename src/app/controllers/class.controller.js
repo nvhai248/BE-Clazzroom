@@ -1,8 +1,9 @@
+const { sendInvitationToTheClass } = require("../../configs/nodemailer");
 const classStore = require("../storages/class.store");
 const classRegistrationStore = require("../storages/classRegistration.store");
 const userStore = require("../storages/user.store");
 const { generateRandomClassCode } = require("../utils/class.helper");
-const { errorBadRequest } = require("../views/error");
+const { errorBadRequest, errorCustom } = require("../views/error");
 const { simpleSuccessResponse } = require("../views/response_to_client");
 
 class ClassController {
@@ -76,6 +77,95 @@ class ClassController {
     myClass.students = students;
 
     res.status(200).send(simpleSuccessResponse(myClass, "success!"));
+  };
+
+  // [POST] /classes/:id/join
+  joinClass = async (req, res) => {
+    const user = req.user;
+    const { class_code } = req.body;
+    const id = req.params.id;
+
+    if (!class_code || !id) {
+      return res.status(400).send(errorBadRequest("Invalid request"));
+    }
+
+    const myClass = await classStore.findClassById(id);
+    if (!myClass) {
+      return res.status(404).send(errorCustom(404, "Class not found!"));
+    }
+
+    const isJoined = await classRegistrationStore.findByClassIdAndUserId(
+      id,
+      user.userId
+    );
+
+    if (isJoined) {
+      return res
+        .status(400)
+        .send(errorCustom(400, "You are already a member of class!"));
+    }
+
+    classRegistrationStore.createClassRegistration({
+      class_id: id,
+      user_id: user.userId,
+      role: user.role,
+    });
+
+    res
+      .status(200)
+      .send(simpleSuccessResponse(null, "Successfully joined class!"));
+  };
+
+  // [POST] /classes/:id/request-send-invitation
+  requestSendInvitation = async (req, res) => {
+    const user = req.user;
+
+    const emails = req.body;
+
+    const id = req.params.id;
+
+    if (!emails || !id) {
+      return res.status(400).send(errorBadRequest("Invalid request"));
+    }
+
+    const myClass = await classStore.findClassById(id);
+    if (!myClass) {
+      return res.status(404).send(errorCustom(404, "Class not found!"));
+    }
+
+    const userInfo = await userStore.findUserById(user.userId);
+
+    if (!userInfo) {
+      return res.status(400).send(errorCustom(404, "User not found!"));
+    }
+
+    for (let i = 0; i < emails.length; i++) {
+      sendInvitationToTheClass(userInfo, emails[i].email, myClass);
+    }
+
+    res
+      .status(200)
+      .send(simpleSuccessResponse(null, "Send Invitation Success!"));
+  };
+
+  // [PATCH] /classes/:id
+  editClassProfile = async (req, res) => {
+    const newData = req.body;
+
+    const id = req.params.id;
+
+    if (!newData || !id) {
+      return res.status(400).send(errorBadRequest("Invalid request"));
+    }
+
+    const myClass = await classStore.findClassById(id);
+    if (!myClass) {
+      return res.status(404).send(errorCustom(404, "Class not found!"));
+    }
+
+    classStore.updateClass(id, newData);
+
+    res.status(200).send(simpleSuccessResponse(newData, "Success!"));
   };
 }
 

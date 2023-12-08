@@ -144,9 +144,30 @@ const sendRequireResetPw = async (email, tokenForResetPw) => {
   sendEmail(mailOptions);
 };
 
+const sendInvitationToTheClass = async (from, to, classInfo) => {
+  let mailOptions = {
+    from: process.env.SITE_EMAIL_ADDRESS,
+    to: to,
+    subject: `${from.full_name} invites you to participate in the class ${classInfo.class_name}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; background-color: #f9f9f9; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+        <h1 style="color: #333; text-align: center; margin-bottom: 30px;">Invitation to ${classInfo.class_name}</h1>
+        <p style="font-size: 16px; color: #555; text-align: center;">Hi there,</p>
+        <p style="font-size: 16px; color: #555; text-align: center;">You're invited to join the following class:</p>
+        <div style="text-align: center; margin-top: 20px;">
+          <a href="${process.env.DOMAIN_CLIENT}/class/class_id=${classInfo._id}?join_code=${classInfo.class_code}" style="display: inline-block; padding: 12px 24px; font-size: 16px; text-decoration: none; background-color: #007bff; color: #fff; border-radius: 5px;">Join Class</a>
+        </div>
+      </div>
+    `,
+  };
+
+  sendEmail(mailOptions);
+};
+
 module.exports = {
   sendVerificationEmail,
   sendRenewPwEmail,
   sendRequireResetPw,
   sendRequireResetPwAfterChangePw,
+  sendInvitationToTheClass,
 };

@@ -1,765 +1,967 @@
 {
-    "swagger": "2.0",
-    "info": {
-        "version": "1.0.0",
-        "title": "API Documentation",
-        "description": "APIs for user authentication, profile management, image upload, verification, password reset, and OAuth."
-    },
-    "basePath": "/",
-    "paths": {
-        "/api/users/login": {
-            "post": {
-                "summary": "Sign in to the application",
-                "tags": [
-                    "Users"
-                ],
-                "parameters": [
-                    {
-                        "name": "email",
-                        "in": "formData",
-                        "type": "string",
-                        "required": true
-                    },
-                    {
-                        "name": "password",
-                        "in": "formData",
-                        "type": "string",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successfully signed in",
-                        "schema": {
-                            "$ref": "#/definitions/UserDetails"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    }
-                }
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "API Documentation",
+    "description": "APIs for user authentication, profile management, image upload, verification, password reset, and OAuth."
+  },
+  "basePath": "/",
+  "paths": {
+    "/api/users/login": {
+      "post": {
+        "summary": "Sign in to the application",
+        "tags": ["Users"],
+        "parameters": [
+          {
+            "name": "email",
+            "in": "formData",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "password",
+            "in": "formData",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully signed in",
+            "schema": {
+              "$ref": "#/definitions/UserDetails"
             }
-        },
-        "/api/users/register": {
-            "post": {
-                "summary": "Sign up to the application",
-                "tags": [
-                    "Users"
-                ],
-                "parameters": [
-                    {
-                        "name": "email",
-                        "in": "formData",
-                        "type": "string",
-                        "required": true
-                    },
-                    {
-                        "name": "password",
-                        "in": "formData",
-                        "type": "string"
-                    },
-                    {
-                        "name": "gg_id",
-                        "in": "formData",
-                        "type": "string"
-                    },
-                    {
-                        "name": "fb_id",
-                        "in": "formData",
-                        "type": "string"
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Successfully signed up"
-                    },
-                    "400": {
-                        "description": "Bad request"
-                    }
-                }
-            }
-        },
-        "/api/users/logout": {
-            "delete": {
-                "tags": [
-                    "Users"
-                ],
-                "summary": "Log out from the application",
-                "parameters": [
-                    {
-                        "name": "Authorization",
-                        "in": "header",
-                        "type": "string",
-                        "required": true,
-                        "description": "Bearer token"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successfully logged out"
-                    }
-                }
-            }
-        },
-        "/api/users/profile": {
-            "get": {
-                "summary": "Get user's profile",
-                "tags": [
-                    "Users"
-                ],
-                "description": "Endpoint to retrieve the user's profile.",
-                "parameters": [
-                    {
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true,
-                        "description": "Authorization token",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successfully retrieved user's profile",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/definitions/UserDetails"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "User not found"
-                    }
-                }
-            },
-            "patch": {
-                "summary": "Update user's profile",
-                "tags": [
-                    "Users"
-                ],
-                "description": "Endpoint for updating the user's profile.",
-                "parameters": [
-                    {
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true,
-                        "description": "Authorization token",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "description": "Data to update the user's profile",
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "full_name": {
-                                    "type": "string"
-                                },
-                                "password": {
-                                    "type": "string"
-                                },
-                                "fb_id": {
-                                    "type": "string"
-                                },
-                                "gg_id": {
-                                    "type": "string"
-                                },
-                                "email": {
-                                    "type": "string"
-                                },
-                                "phone_number": {
-                                    "type": "string"
-                                },
-                                "birthday": {
-                                    "type": "string"
-                                },
-                                "social_id": {
-                                    "type": "string"
-                                },
-                                "address": {
-                                    "type": "string"
-                                },
-                                "image": {
-                                    "type": "object"
-                                },
-                                "role": {
-                                    "type": "string"
-                                },
-                                "is_verified": {
-                                    "type": "boolean"
-                                },
-                                "created_at": {
-                                    "type": "string"
-                                },
-                                "updated_at": {
-                                    "type": "string"
-                                }
-                            }
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successfully updated user's profile",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/definitions/UserDetails"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request"
-                    }
-                }
-            }
-        },
-        "/api/users/avatar": {
-            "patch": {
-                "summary": "Update user's avatar",
-                "tags": [
-                    "Users"
-                ],
-                "description": "Endpoint for updating the user's avatar.",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "parameters": [
-                    {
-                        "name": "avatar",
-                        "in": "formData",
-                        "type": "file",
-                        "required": true,
-                        "description": "Image file to upload as the user's avatar"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successfully updated user's avatar",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/definitions/ImageDetails"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request"
-                    },
-                    "500": {
-                        "description": "Internal server error"
-                    }
-                }
-            }
-        },
-        "/api/upload/image": {
-            "post": {
-                "summary": "Upload the image",
-                "responses": {
-                    "200": {
-                        "description": "Successfully uploaded image"
-                    }
-                }
-            }
-        },
-        "/api/users/verify": {
-            "post": {
-                "summary": "Verify the user",
-                "tags": [
-                    "Users"
-                ],
-                "description": "Endpoint to verify the user with a verification token.",
-                "parameters": [
-                    {
-                        "name": "token",
-                        "in": "formData",
-                        "required": true,
-                        "description": "Verification token",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "User verified",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "status": {
-                                            "type": "number",
-                                            "description": "Status code"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "description": "Success message"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Invalid or blocked token"
-                    }
-                }
-            }
-        },
-        "/api/users/resend-verification": {
-            "post": {
-                "summary": "Resend verification via email",
-                "tags": [
-                    "Users"
-                ],
-                "description": "Endpoint to resend the verification email to the user.",
-                "responses": {
-                    "200": {
-                        "description": "Resend verification email successful",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "description": "Success message"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "Unable to send verification email"
-                    }
-                }
-            }
-        },
-        "/api/users/send-email-renew-pw": {
-            "post": {
-                "summary": "Send email to renew password",
-                "tags": [
-                    "Users"
-                ],
-                "description": "Endpoint to send an email for password renewal.",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "email": {
-                                        "type": "string",
-                                        "description": "The user's email",
-                                        "example": "example@example.com"
-                                    }
-                                },
-                                "required": [
-                                    "email"
-                                ]
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Email sent successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "description": "Success message"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "Unable to send email for password renewal"
-                    }
-                }
-            }
-        },
-        "/api/users/change-pw": {
-            "patch": {
-                "summary": "Change user password",
-                "tags": [
-                    "Users"
-                ],
-                "description": "Endpoint to change user password.",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "password": {
-                                        "type": "string",
-                                        "description": "Current password",
-                                        "example": "current_password"
-                                    },
-                                    "newPassword": {
-                                        "type": "string",
-                                        "description": "New password",
-                                        "example": "new_password"
-                                    }
-                                },
-                                "required": [
-                                    "password",
-                                    "newPassword"
-                                ]
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Password changed successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "description": "Success message"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "User not found or incorrect password"
-                    }
-                }
-            }
-        },
-        "/api/users/resetPw": {
-            "patch": {
-                "summary": "Reset user password",
-                "tags": [
-                    "Users"
-                ],
-                "description": "Endpoint to reset user password using a token.",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "newPassword": {
-                                        "type": "string",
-                                        "description": "New password",
-                                        "example": "new_password"
-                                    },
-                                    "token": {
-                                        "type": "string",
-                                        "description": "Token for password reset",
-                                        "example": "reset_token"
-                                    }
-                                },
-                                "required": [
-                                    "newPassword",
-                                    "token"
-                                ]
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Password reset successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "description": "Success message"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Invalid or expired token"
-                    },
-                    "403": {
-                        "description": "Token is blocked"
-                    }
-                }
-            }
-        },
-        "/api/users/facebook-oauth": {
-            "post": {
-                "summary": "Login via Facebook OAuth",
-                "tags": [
-                    "Users"
-                ],
-                "description": "Endpoint to authenticate users via Facebook OAuth.",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "fb_id": {
-                                        "type": "string",
-                                        "description": "Facebook ID of the user",
-                                        "example": "facebook_user_id"
-                                    }
-                                },
-                                "required": [
-                                    "fb_id"
-                                ]
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Successfully logged in via Facebook",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "schema": {
-                                        "$ref": "#/definitions/Token"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized, user not found in the system"
-                    }
-                }
-            }
-        },
-        "/api/users/google-oauth": {
-            "post": {
-                "summary": "Login via Google OAuth",
-                "tags": [
-                    "Users"
-                ],
-                "description": "Endpoint to authenticate users via Google OAuth.",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "gg_id": {
-                                        "type": "string",
-                                        "description": "Google ID of the user",
-                                        "example": "google_user_id"
-                                    }
-                                },
-                                "required": [
-                                    "gg_id"
-                                ]
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Successfully logged in via Google",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "schema": {
-                                        "$ref": "#/definitions/Token"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized, user not found in the system"
-                    }
-                }
-            }
-        },
-        "/api/users/send-email-reset-pw": {
-            "post": {
-                "summary": "Send email for password reset",
-                "tags": [
-                    "Users"
-                ],
-                "description": "Endpoint to send an email for password reset to the specified email address.",
-                "parameters": {
-                    "required": true,
-                    "content": {
-                        "type": "object",
-                        "properties": {
-                            "email": {
-                                "type": "string",
-                                "description": "User's email address",
-                                "example": "example@example.com"
-                            }
-                        },
-                        "required": [
-                            "email"
-                        ]
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Email sent successfully for password reset",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "description": "Success message"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "Failed to send email for password reset"
-                    }
-                }
-            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
         }
+      }
     },
-    "definitions": {
-        "Authentication": {
-            "type": "object",
-            "properties": {
-                "userId": {
-                    "type": "string"
-                },
-                "token": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                }
+    "/api/users/register": {
+      "post": {
+        "summary": "Sign up to the application",
+        "tags": ["Users"],
+        "parameters": [
+          {
+            "name": "email",
+            "in": "formData",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "password",
+            "in": "formData",
+            "type": "string"
+          },
+          {
+            "name": "gg_id",
+            "in": "formData",
+            "type": "string"
+          },
+          {
+            "name": "fb_id",
+            "in": "formData",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully signed up"
+          },
+          "400": {
+            "description": "Bad request"
+          }
+        }
+      }
+    },
+    "/api/users/logout": {
+      "delete": {
+        "tags": ["Users"],
+        "summary": "Log out from the application",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "type": "string",
+            "required": true,
+            "description": "Bearer token"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully logged out"
+          }
+        }
+      }
+    },
+    "/api/users/profile": {
+      "get": {
+        "summary": "Get user's profile",
+        "tags": ["Users"],
+        "description": "Endpoint to retrieve the user's profile.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "description": "Authorization token",
+            "schema": {
+              "type": "string"
             }
-        },
-        "ImageDetails": {
-            "type": "object",
-            "properties": {
-                "url": {
-                    "type": "string"
-                },
-                "width": {
-                    "type": "number"
-                },
-                "height": {
-                    "type": "number"
-                },
-                "cloud_name": {
-                    "type": "string"
-                },
-                "extension": {
-                    "type": "string"
-                },
-                "created_by": {
-                    "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved user's profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/UserDetails"
                 }
+              }
             }
-        },
-        "UserDetails": {
-            "type": "object",
-            "properties": {
-                "userId": {
-                    "type": "string"
-                },
-                "token": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
+          },
+          "404": {
+            "description": "User not found"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update user's profile",
+        "tags": ["Users"],
+        "description": "Endpoint for updating the user's profile.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "description": "Authorization token",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "description": "Data to update the user's profile",
+            "schema": {
+              "type": "object",
+              "properties": {
                 "full_name": {
-                    "type": "string"
+                  "type": "string"
                 },
                 "password": {
-                    "type": "string"
+                  "type": "string"
                 },
                 "fb_id": {
-                    "type": "string"
+                  "type": "string"
                 },
                 "gg_id": {
-                    "type": "string"
+                  "type": "string"
                 },
                 "email": {
-                    "type": "string"
+                  "type": "string"
                 },
                 "phone_number": {
-                    "type": "string"
+                  "type": "string"
                 },
                 "birthday": {
-                    "type": "string"
+                  "type": "string"
                 },
                 "social_id": {
-                    "type": "string"
+                  "type": "string"
                 },
                 "address": {
-                    "type": "string"
+                  "type": "string"
                 },
                 "image": {
-                    "type": "object"
+                  "type": "object"
                 },
                 "role": {
-                    "type": "string"
+                  "type": "string"
                 },
                 "is_verified": {
-                    "type": "boolean"
+                  "type": "boolean"
+                },
+                "created_at": {
+                  "type": "string"
                 },
                 "updated_at": {
-                    "type": "string"
+                  "type": "string"
                 }
+              }
             }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated user's profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/UserDetails"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          }
+        }
+      }
+    },
+    "/api/users/avatar": {
+      "patch": {
+        "summary": "Update user's avatar",
+        "tags": ["Users"],
+        "description": "Endpoint for updating the user's avatar.",
+        "consumes": ["multipart/form-data"],
+        "parameters": [
+          {
+            "name": "avatar",
+            "in": "formData",
+            "type": "file",
+            "required": true,
+            "description": "Image file to upload as the user's avatar"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated user's avatar",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/ImageDetails"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/upload/image": {
+      "post": {
+        "summary": "Upload the image",
+        "responses": {
+          "200": {
+            "description": "Successfully uploaded image"
+          }
+        }
+      }
+    },
+    "/api/users/verify": {
+      "post": {
+        "summary": "Verify the user",
+        "tags": ["Users"],
+        "description": "Endpoint to verify the user with a verification token.",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "formData",
+            "required": true,
+            "description": "Verification token",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User verified",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "number",
+                      "description": "Status code"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Success message"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Invalid or blocked token"
+          }
+        }
+      }
+    },
+    "/api/users/resend-verification": {
+      "post": {
+        "summary": "Resend verification via email",
+        "tags": ["Users"],
+        "description": "Endpoint to resend the verification email to the user.",
+        "responses": {
+          "200": {
+            "description": "Resend verification email successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Success message"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unable to send verification email"
+          }
+        }
+      }
+    },
+    "/api/users/send-email-renew-pw": {
+      "post": {
+        "summary": "Send email to renew password",
+        "tags": ["Users"],
+        "description": "Endpoint to send an email for password renewal.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "description": "The user's email",
+                    "example": "example@example.com"
+                  }
+                },
+                "required": ["email"]
+              }
+            }
+          }
         },
-        "Token": {
+        "responses": {
+          "200": {
+            "description": "Email sent successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Success message"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unable to send email for password renewal"
+          }
+        }
+      }
+    },
+    "/api/users/change-pw": {
+      "patch": {
+        "summary": "Change user password",
+        "tags": ["Users"],
+        "description": "Endpoint to change user password.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "password": {
+                    "type": "string",
+                    "description": "Current password",
+                    "example": "current_password"
+                  },
+                  "newPassword": {
+                    "type": "string",
+                    "description": "New password",
+                    "example": "new_password"
+                  }
+                },
+                "required": ["password", "newPassword"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password changed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Success message"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User not found or incorrect password"
+          }
+        }
+      }
+    },
+    "/api/users/resetPw": {
+      "patch": {
+        "summary": "Reset user password",
+        "tags": ["Users"],
+        "description": "Endpoint to reset user password using a token.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "newPassword": {
+                    "type": "string",
+                    "description": "New password",
+                    "example": "new_password"
+                  },
+                  "token": {
+                    "type": "string",
+                    "description": "Token for password reset",
+                    "example": "reset_token"
+                  }
+                },
+                "required": ["newPassword", "token"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password reset successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Success message"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired token"
+          },
+          "403": {
+            "description": "Token is blocked"
+          }
+        }
+      }
+    },
+    "/api/users/facebook-oauth": {
+      "post": {
+        "summary": "Login via Facebook OAuth",
+        "tags": ["Users"],
+        "description": "Endpoint to authenticate users via Facebook OAuth.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "fb_id": {
+                    "type": "string",
+                    "description": "Facebook ID of the user",
+                    "example": "facebook_user_id"
+                  }
+                },
+                "required": ["fb_id"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully logged in via Facebook",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "schema": {
+                    "$ref": "#/definitions/Token"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized, user not found in the system"
+          }
+        }
+      }
+    },
+    "/api/users/google-oauth": {
+      "post": {
+        "summary": "Login via Google OAuth",
+        "tags": ["Users"],
+        "description": "Endpoint to authenticate users via Google OAuth.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "gg_id": {
+                    "type": "string",
+                    "description": "Google ID of the user",
+                    "example": "google_user_id"
+                  }
+                },
+                "required": ["gg_id"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully logged in via Google",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "schema": {
+                    "$ref": "#/definitions/Token"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized, user not found in the system"
+          }
+        }
+      }
+    },
+    "/api/users/send-email-reset-pw": {
+      "post": {
+        "summary": "Send email for password reset",
+        "tags": ["Users"],
+        "description": "Endpoint to send an email for password reset to the specified email address.",
+        "parameters": {
+          "required": true,
+          "content": {
             "type": "object",
             "properties": {
-                "message": {
-                    "type": "string",
-                    "description": "Success message"
-                },
-                "token": {
-                    "type": "string",
-                    "description": "Generated JWT token"
-                },
-                "user": {
-                    "type": "string",
-                    "description": "User information"
+              "email": {
+                "type": "string",
+                "description": "User's email address",
+                "example": "example@example.com"
+              }
+            },
+            "required": ["email"]
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Email sent successfully for password reset",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Success message"
+                    }
+                  }
                 }
+              }
             }
+          },
+          "403": {
+            "description": "Failed to send email for password reset"
+          }
         }
+      }
+    },
+    "api/classes/": {
+      "post": {
+        "summary": "Create a new class",
+        "tags": ["Classes"],
+        "parameters": [
+          {
+            "name": "class_name",
+            "in": "formData",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "room",
+            "in": "formData",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "topic",
+            "in": "formData",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "description",
+            "in": "formData",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created a new class",
+            "schema": {
+              "$ref": "#/definitions/Class"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "api/classes/:id": {
+      "get": {
+        "summary": "Get class details by ID",
+        "tags": ["Classes"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID of the class"
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "schema": {
+              "$ref": "#/definitions/Class"
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update class profile by ID",
+        "tags": ["Classes"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID of the class"
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "class_name",
+            "in": "formData",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "room",
+            "in": "formData",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "topic",
+            "in": "formData",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "description",
+            "in": "formData",
+            "type": "string",
+            "required": true
+          }
+        ],
+
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Class"
+            }
+          }
+        }
+      }
+    },
+    "api/classes/:id/join": {
+      "post": {
+        "summary": "Join a class by ID",
+        "tags": ["Classes"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID of the class"
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully joined class"
+          }
+        }
+      }
+    },
+    "api/classes/:id/request-send-invitation": {
+      "post": {
+        "summary": "Send invitation to join a class by ID",
+        "tags": ["Classes"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID of the class"
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "emails",
+            "required": true,
+            "in": "body",
+            "schema": [
+              {
+                "$ref": "#/definitions/Email"
+              }
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Send Invitation Success"
+          }
+        }
+      }
     }
+  },
+  "definitions": {
+    "Authentication": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string"
+        },
+        "token": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string"
+        }
+      }
+    },
+    "ImageDetails": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "width": {
+          "type": "number"
+        },
+        "height": {
+          "type": "number"
+        },
+        "cloud_name": {
+          "type": "string"
+        },
+        "extension": {
+          "type": "string"
+        },
+        "created_by": {
+          "type": "string"
+        }
+      }
+    },
+    "UserDetails": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string"
+        },
+        "token": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "full_name": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "fb_id": {
+          "type": "string"
+        },
+        "gg_id": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "phone_number": {
+          "type": "string"
+        },
+        "birthday": {
+          "type": "string"
+        },
+        "social_id": {
+          "type": "string"
+        },
+        "address": {
+          "type": "string"
+        },
+        "image": {
+          "type": "object"
+        },
+        "role": {
+          "type": "string"
+        },
+        "is_verified": {
+          "type": "boolean"
+        },
+        "updated_at": {
+          "type": "string"
+        }
+      }
+    },
+    "Token": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "Success message"
+        },
+        "token": {
+          "type": "string",
+          "description": "Generated JWT token"
+        },
+        "user": {
+          "type": "string",
+          "description": "User information"
+        }
+      }
+    },
+    "Class": {
+      "type": "object",
+      "properties": {
+        "class_name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "class_code": {
+          "type": "string"
+        },
+        "room": {
+          "type": "string"
+        },
+        "topic": {
+          "type": "string"
+        },
+        "student_count": {
+          "type": "integer"
+        },
+        "teacher_count": {
+          "type": "integer"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string"
+        }
+      }
+    },
+    "Email": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        }
+      }
+    }
+  }
 }

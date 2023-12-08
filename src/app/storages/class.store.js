@@ -29,7 +29,7 @@ class ClassStore {
   };
 
   updateClass = async (id, newClassInfo) => {
-    Class.updateOne({ _id: id }, newClassInfo);
+    await Class.updateOne({ _id: id }, newClassInfo);
   };
 }
 
