@@ -3,7 +3,11 @@ const classStore = require("../storages/class.store");
 const classRegistrationStore = require("../storages/classRegistration.store");
 const userStore = require("../storages/user.store");
 const { generateRandomClassCode } = require("../utils/class.helper");
-const { errorBadRequest, errorCustom } = require("../views/error");
+const {
+  errorBadRequest,
+  errorCustom,
+  errNoPermission,
+} = require("../views/error");
 const { simpleSuccessResponse } = require("../views/response_to_client");
 
 class ClassController {
@@ -161,6 +165,10 @@ class ClassController {
     const myClass = await classStore.findClassById(id);
     if (!myClass) {
       return res.status(404).send(errorCustom(404, "Class not found!"));
+    }
+
+    if (myClass.owner != req.user.userId) {
+      return res.status(403).send(errNoPermission("You are not owner!"));
     }
 
     classStore.updateClass(id, newData);

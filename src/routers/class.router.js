@@ -6,14 +6,10 @@ const authenticate = require("../app/middlewares/authenticate");
 const {
   RequireRoleTeacher,
   RequireInClass,
+  RequireOwner,
 } = require("../app/middlewares/require");
 
-router.patch(
-  "/:id",
-  authenticate,
-  RequireRoleTeacher,
-  classRouter.editClassProfile
-);
+router.patch("/:id", authenticate, classRouter.editClassProfile);
 router.post(
   "/:id/request-send-invitation",
   authenticate,

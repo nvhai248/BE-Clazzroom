@@ -4,10 +4,6 @@ const { errorInternalServer, errNoPermission } = require("../views/error");
 function RequireRoleStudent(req, res, next) {
   const user = req.user;
 
-  if (!user) {
-    return res.status(500).send(errorInternalServer("The session invalid!"));
-  }
-
   if (user.role != "student") {
     return res.status(403).send(errNoPermission("You are not a student!"));
   }
@@ -17,10 +13,6 @@ function RequireRoleStudent(req, res, next) {
 
 function RequireRoleTeacher(req, res, next) {
   const user = req.user;
-
-  if (!user) {
-    return res.status(500).send(errorInternalServer("The session invalid!"));
-  }
 
   if (user.role != "teacher") {
     return res.status(403).send(errNoPermission("You are not a teacher!"));
@@ -42,4 +34,8 @@ function RequireInClass(req, res, next) {
   next();
 }
 
-module.exports = { RequireRoleStudent, RequireRoleTeacher, RequireInClass };
+module.exports = {
+  RequireRoleStudent,
+  RequireRoleTeacher,
+  RequireInClass,
+};
