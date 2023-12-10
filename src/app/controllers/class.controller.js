@@ -96,26 +96,28 @@ class ClassController {
     myClass.teachers = teachers;
     myClass.students = students;
 
+    let owner = await userStore.findUserById(myClass.owner);
+    delete owner.password;
+    myClass.owner = owner;
     res.status(200).send(simpleSuccessResponse(myClass, "success!"));
   };
 
-  // [POST] /classes/:id/join
+  // [POST] /classes/join
   joinClass = async (req, res) => {
     const user = req.user;
     const { class_code } = req.body;
-    const id = req.params.id;
 
-    if (!class_code || !id) {
+    if (!class_code) {
       return res.status(400).send(errorBadRequest("Invalid request"));
     }
 
-    const myClass = await classStore.findClassById(id);
+    const myClass = await classStore.findClassByClassCode(class_code);
     if (!myClass) {
       return res.status(404).send(errorCustom(404, "Class not found!"));
     }
 
     const isJoined = await classRegistrationStore.findByClassIdAndUserId(
-      id,
+      myClass._id,
       user.userId
     );
 
@@ -126,7 +128,7 @@ class ClassController {
     }
 
     classRegistrationStore.createClassRegistration({
-      class_id: id,
+      class_id: myClass._id,
       user_id: user.userId,
       role: user.role,
     });
@@ -190,6 +192,18 @@ class ClassController {
     classStore.updateClass(id, newData);
 
     res.status(200).send(simpleSuccessResponse(newData, "Success!"));
+  };
+
+  // [GET] /classes/generate-class_code
+  generateClassCode = (req, res, next) => {
+    res
+      .status(200)
+      .send(
+        simpleSuccessResponse(
+          { class_code: generateRandomClassCode(8) },
+          "Successfully generated!"
+        )
+      );
   };
 }
 

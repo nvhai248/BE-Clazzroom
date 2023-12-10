@@ -763,19 +763,19 @@
         }
       }
     },
-    "api/classes/:id/join": {
+    "api/classes/join": {
       "post": {
         "summary": "Join a class by ID",
         "tags": ["Classes"],
         "parameters": [
           {
-            "in": "path",
-            "name": "id",
+            "in": "formData",
+            "name": "class_code",
             "required": true,
             "schema": {
               "type": "string"
             },
-            "description": "ID of the class"
+            "description": "class_code of the class"
           },
           {
             "name": "Authorization",
@@ -827,6 +827,30 @@
             "description": "Send Invitation Success"
           }
         }
+      }
+    },
+    "api/classes/generate-class_code": {
+      "get": {
+        "summary": "Generate class code",
+        "tags": ["Classes"],
+        "responses": {
+          "200": {
+            "description": "Success generate class code",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "class_code": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/google": {
+      "get": {
+        "description": "OAuth by google"
       }
     }
   },

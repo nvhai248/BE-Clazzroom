@@ -21,6 +21,13 @@ class ClassStore {
     return _class;
   };
 
+  findClassByClassCode = async (class_code) => {
+    var _class = mongooseHelper.mongoosesToObject(
+      await Class.findOne({ class_code: class_code })
+    );
+    return _class;
+  };
+
   createClass = async (classInfo) => {
     var newClass = new Class(classInfo);
     await newClass.save();
