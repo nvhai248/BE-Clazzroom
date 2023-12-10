@@ -658,6 +658,24 @@
             "description": "Forbidden"
           }
         }
+      },
+      "get": {
+        "summary": "Get class joined",
+        "tags": ["Classes"],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Send Invitation Success",
+            "schema": [{ "$ref": "#/definitions/Class" }]
+          }
+        }
       }
     },
     "api/classes/:id": {

@@ -11,6 +11,22 @@ const {
 const { simpleSuccessResponse } = require("../views/response_to_client");
 
 class ClassController {
+  //[GET] /classes
+  getListClasses = async (req, res) => {
+    var user = req.user;
+
+    let registrations = await classRegistrationStore.findListClassIdByUserId(
+      user.userId
+    );
+
+    let result = [];
+    for (var i = 0; i < registrations.length; i++) {
+      result.push(await classStore.findClassById(registrations[i].class_id));
+    }
+
+    res.status(200).send(simpleSuccessResponse(result, "Success!"));
+  };
+
   //[POST] /classes/
   createNewClass = async (req, res) => {
     var data = req.body;
