@@ -155,7 +155,7 @@ const sendInvitationToTheClass = async (from, to, classInfo) => {
         <p style="font-size: 16px; color: #555; text-align: center;">Hi there,</p>
         <p style="font-size: 16px; color: #555; text-align: center;">You're invited to join the following class:</p>
         <div style="text-align: center; margin-top: 20px;">
-          <a href="${process.env.DOMAIN_CLIENT}/class/class_id=${classInfo._id}?join_code=${classInfo.class_code}" style="display: inline-block; padding: 12px 24px; font-size: 16px; text-decoration: none; background-color: #007bff; color: #fff; border-radius: 5px;">Join Class</a>
+          <a href="${process.env.DOMAIN_CLIENT}/join/${classInfo._id}?join_code=${classInfo.class_code}" style="display: inline-block; padding: 12px 24px; font-size: 16px; text-decoration: none; background-color: #007bff; color: #fff; border-radius: 5px;">Join Class</a>
         </div>
       </div>
     `,
