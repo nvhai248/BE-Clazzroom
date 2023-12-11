@@ -21,7 +21,11 @@ class ClassController {
 
     let result = [];
     for (var i = 0; i < registrations.length; i++) {
-      result.push(await classStore.findClassById(registrations[i].class_id));
+      var _class = await classStore.findClassById(registrations[i].class_id);
+      var owner = await userStore.findUserById(_class.owner);
+      delete owner.password;
+      _class.owner = owner;
+      result.push(_class);
     }
 
     res.status(200).send(simpleSuccessResponse(result, "Success!"));
