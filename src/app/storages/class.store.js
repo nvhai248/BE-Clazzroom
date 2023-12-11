@@ -1,5 +1,6 @@
 const Class = require("../models/class.model");
 const mongooseHelper = require("../utils/mongoose.helper");
+const { errorCustom } = require("../views/error");
 
 class ClassStore {
   findListClassById = async (ids) => {
@@ -15,10 +16,14 @@ class ClassStore {
   };
 
   findClassById = async (id) => {
-    var _class = mongooseHelper.mongoosesToObject(
-      await Class.findOne({ _id: id })
-    );
-    return _class;
+    try {
+      var _class = mongooseHelper.mongoosesToObject(
+        await Class.findOne({ _id: id })
+      );
+      return _class;
+    } catch (error) {
+      return null;
+    }
   };
 
   findClassByClassCode = async (class_code) => {

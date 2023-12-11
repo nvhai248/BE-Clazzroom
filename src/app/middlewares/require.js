@@ -1,5 +1,6 @@
+const classStore = require("../storages/class.store");
 const classRegistrationStore = require("../storages/classRegistration.store");
-const { errorInternalServer, errNoPermission } = require("../views/error");
+const { errNoPermission, errorBadRequest } = require("../views/error");
 
 function RequireRoleStudent(req, res, next) {
   const user = req.user;
@@ -21,11 +22,24 @@ function RequireRoleTeacher(req, res, next) {
   next();
 }
 
-function RequireInClass(req, res, next) {
+async function RequireInClass(req, res, next) {
   const userId = req.user.userId;
   const classId = req.params.id;
 
-  var isJoin = classRegistrationStore.findByClassIdAndUserId(classId, userId);
+  if (!classId) {
+    return res.status(400).send(errorBadRequest("Invalid id!"));
+  }
+
+  var isIn = await classStore.findClassById(classId);
+
+  if (!isIn) {
+    return res.status(400).send(errorBadRequest("Class not found!"));
+  }
+
+  var isJoin = await classRegistrationStore.findByClassIdAndUserId(
+    classId,
+    userId
+  );
 
   if (!isJoin) {
     return res.status(403).send(errNoPermission("You are not in a class!"));
