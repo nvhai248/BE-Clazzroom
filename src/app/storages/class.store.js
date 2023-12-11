@@ -38,6 +38,14 @@ class ClassStore {
   updateClass = async (id, newClassInfo) => {
     await Class.updateOne({ _id: id }, newClassInfo);
   };
+
+  increaseStudentCount = async (id) => {
+    await Class.updateOne({ _id: id }, { $inc: { student_count: 1 } });
+  };
+
+  increaseTeacherCount = async (id) => {
+    await Class.updateOne({ _id: id }, { $inc: { teacher_count: 1 } });
+  };
 }
 
 module.exports = new ClassStore();

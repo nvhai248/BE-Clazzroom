@@ -28,7 +28,7 @@ function Routers(app) {
     "/auth/google/callback",
     passport.authenticate("google", {
       session: true,
-      failureMessage: "Sign in with google Failed!",
+      successRedirect: `${process.env.DOMAIN_CLIENT}/`,
       successMessage: "OK",
     }),
     ggOAuth

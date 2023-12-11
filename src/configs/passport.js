@@ -6,6 +6,7 @@ const ExtractJwt = require("passport-jwt").ExtractJwt;
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const flash = require("connect-flash");
 const { errorCustom } = require("../app/views/error");
+const cookieSession = require("cookie-session");
 
 const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -13,6 +14,10 @@ const jwtOptions = {
 };
 
 function setup(app) {
+  app.use(
+    cookieSession({ name: session, keys: ["lama"], maxAge: 24 * 60 * 60  * 100 })
+  );
+
   app.use(
     session({
       secret: process.env.SESSION_SECRET,

@@ -133,6 +133,12 @@ class ClassController {
       role: user.role,
     });
 
+    if (user.role === "student") {
+      classStore.increaseStudentCount(myClass._id);
+    } else if (user.role === "teacher") {
+      classStore.increaseTeacherCount(myClass._id);
+    }
+
     res
       .status(200)
       .send(simpleSuccessResponse(null, "Successfully joined class!"));

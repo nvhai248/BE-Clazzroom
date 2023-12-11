@@ -17,7 +17,7 @@ router.post(
   RequireInClass,
   classRouter.requestSendInvitation
 );
-router.post("/:id/join", authenticate, classRouter.joinClass);
+router.post("/join", authenticate, classRouter.joinClass);
 router.get("/:id", authenticate, RequireInClass, classRouter.findClass);
 router.post("/", authenticate, RequireRoleTeacher, classRouter.createNewClass);
 
