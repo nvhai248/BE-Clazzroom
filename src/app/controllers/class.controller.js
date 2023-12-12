@@ -195,10 +195,6 @@ class ClassController {
       return res.status(404).send(errorCustom(404, "Class not found!"));
     }
 
-    if (myClass.owner != req.user.userId) {
-      return res.status(403).send(errNoPermission("You are not owner!"));
-    }
-
     classStore.updateClass(id, newData);
 
     res.status(200).send(simpleSuccessResponse(newData, "Success!"));
