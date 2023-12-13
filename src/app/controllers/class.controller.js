@@ -1,3 +1,4 @@
+const { response } = require("express");
 const { sendInvitationToTheClass } = require("../../configs/nodemailer");
 const classStore = require("../storages/class.store");
 const classRegistrationStore = require("../storages/classRegistration.store");
@@ -210,6 +211,34 @@ class ClassController {
           "Successfully generated!"
         )
       );
+  };
+
+  // [DELETE] /classes/:id/out
+  outOfClass = async (req, res, next) => {
+    var id = req.params.id;
+
+    var user = req.user;
+    if (!id) {
+      return res.status(400).send(errorBadRequest("Invalid request"));
+    }
+
+    let _class = await classStore.findClassById(id);
+
+    if (_class.owner == user.userId) {
+      return res
+        .status(400)
+        .send(
+          errorCustom(
+            400,
+            "You can't out the class, because you are the owner of class!"
+          )
+        );
+    }
+
+    classRegistrationStore.deleteRegistration(id, user.userId);
+    res
+      .status(200)
+      .send(simpleSuccessResponse(null, "Successfully out of class!"));
   };
 }
 

@@ -852,6 +852,37 @@
       "get": {
         "description": "OAuth by google"
       }
+    },
+    "api/classes/:id/out": {
+      "delete": {
+        "summary": "Send invitation to join a class by ID",
+        "tags": ["Classes"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID of the class"
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Out class successfully!"
+          },
+          "403": {
+            "description": "You are the owner of class or You're not in class!"
+          }
+        }
+      }
     }
   },
   "definitions": {
