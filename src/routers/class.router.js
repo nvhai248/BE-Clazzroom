@@ -8,6 +8,7 @@ const {
   RequireInClass,
 } = require("../app/middlewares/require");
 
+router.delete("/:id/out", authenticate, RequireInClass, classRouter.outOfClass);
 router.get("/generate-class_code", classRouter.generateClassCode);
 router.get("/", authenticate, classRouter.getListClasses);
 router.patch("/:id", authenticate, classRouter.editClassProfile);

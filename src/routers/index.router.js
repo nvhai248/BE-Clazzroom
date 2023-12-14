@@ -4,7 +4,10 @@ const classRouter = require("./class.router");
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("../../swagger.json");
 const passport = require("passport");
-const ggOAuth = require("../app/middlewares/ggOAuth");
+const {
+  OauthGGSuccess,
+  OauthGGFailure,
+} = require("../app/middlewares/ggOAuth");
 
 function Routers(app) {
   app.use("/api/classes", classRouter);
@@ -23,15 +26,16 @@ function Routers(app) {
     "/auth/google",
     passport.authenticate("google", { scope: ["profile", "email"] })
   );
-
+  app.get("/login/fail", OauthGGFailure);
+  app.get("/login/success", OauthGGSuccess);
+  
   app.get(
     "/auth/google/callback",
     passport.authenticate("google", {
-      session: true,
       successRedirect: `${process.env.DOMAIN_CLIENT}/`,
       successMessage: "OK",
-    }),
-    ggOAuth
+      failureRedirect: "/login/fail",
+    })
   );
 }
 

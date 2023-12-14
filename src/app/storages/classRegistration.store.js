@@ -30,7 +30,7 @@ class ClassRegistrationStore {
   };
 
   deleteRegistration = async (classId, userId) => {
-    ClassRegistration.deleteOne({ class_id: classId, user_id: userId });
+    await ClassRegistration.deleteOne({ class_id: classId, user_id: userId });
   };
 }
 

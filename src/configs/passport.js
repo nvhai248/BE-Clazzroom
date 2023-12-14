@@ -5,8 +5,8 @@ const JwtStrategy = require("passport-jwt").Strategy;
 const ExtractJwt = require("passport-jwt").ExtractJwt;
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const flash = require("connect-flash");
-const { errorCustom } = require("../app/views/error");
 const cookieSession = require("cookie-session");
+const { errorCustom } = require("../app/views/error");
 
 const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -15,16 +15,20 @@ const jwtOptions = {
 
 function setup(app) {
   app.use(
-    cookieSession({ name: session, keys: ["lama"], maxAge: 24 * 60 * 60  * 100 })
-  );
-
-  app.use(
     session({
       secret: process.env.SESSION_SECRET,
       resave: false,
       saveUninitialized: false,
     })
   );
+
+  /* app.use(
+    cookieSession({
+      name: "session",
+      keys: ["lama"],
+      maxAge: 24 * 60 * 60 * 1000,
+    })
+  ); */
 
   app.use(passport.initialize());
   app.use(passport.session());
@@ -33,7 +37,6 @@ function setup(app) {
   passport.use(
     new JwtStrategy(jwtOptions, async (payload, done) => {
       try {
-        // Assuming you have a user model, replace this logic with your actual user retrieval
         const user = await userStore.findUserById(payload.userId);
         if (!user) {
           return done(null, false);
@@ -72,7 +75,7 @@ function setup(app) {
           );
 
           if (usrByMail) {
-            return done(errorCustom(401, "Unauthorized"), null);
+            return done(null, false, errorCustom(401, "Unauthorized"));
           }
 
           user = await userStore.createUserAndReturn({
