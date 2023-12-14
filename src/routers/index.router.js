@@ -26,7 +26,9 @@ function Routers(app) {
     "/auth/google",
     passport.authenticate("google", { scope: ["profile", "email"] })
   );
-
+  app.get("/login/fail", OauthGGFailure);
+  app.get("/login/success", OauthGGSuccess);
+  
   app.get(
     "/auth/google/callback",
     passport.authenticate("google", {
@@ -35,9 +37,6 @@ function Routers(app) {
       failureRedirect: "/login/fail",
     })
   );
-
-  app.get("/login/fail", OauthGGFailure);
-  app.get("/login/success", OauthGGSuccess);
 }
 
 module.exports = Routers;

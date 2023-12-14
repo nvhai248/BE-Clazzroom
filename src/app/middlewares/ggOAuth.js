@@ -3,7 +3,7 @@ const tokenStore = require("../storages/token.store");
 const { errorInternalServer, errorUnauthorized } = require("../views/error");
 const { simpleSuccessResponse } = require("../views/response_to_client");
 
-OauthGGSuccess = async (req, res) => {
+async function OauthGGSuccess(req, res) {
   var token = jwt.generateToken(req.user, "7d");
   try {
     await tokenStore.createToken({
@@ -16,10 +16,10 @@ OauthGGSuccess = async (req, res) => {
   } catch (err) {
     res.status(500).send(errorInternalServer(err));
   }
-};
+}
 
-OauthGGFailure = async (req, res) => {
+async function OauthGGFailure(req, res) {
   res.status(401).send(errorUnauthorized());
-};
+}
 
 module.exports = { OauthGGSuccess, OauthGGFailure };
