@@ -18,8 +18,28 @@ async function OauthGGSuccess(req, res) {
   }
 }
 
+async function OauthGGCheck(req, res) {
+  try {
+    var token = jwt.generateToken(req.user, "7d");
+
+    if (!req.user) {
+      res.status(401).send(errorUnauthorized());
+    }
+
+    await tokenStore.createToken({
+      token: token,
+      userId: req.user.userId,
+    });
+    res
+      .status(200)
+      .send(simpleSuccessResponse({ token: token, user: req.user }, "OK"));
+  } catch (err) {
+    res.status(500).send(errorInternalServer(err));
+  }
+}
+
 async function OauthGGFailure(req, res) {
   res.status(401).send(errorUnauthorized());
 }
 
-module.exports = { OauthGGSuccess, OauthGGFailure };
+module.exports = { OauthGGSuccess, OauthGGFailure, OauthGGCheck };

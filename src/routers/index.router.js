@@ -7,6 +7,7 @@ const passport = require("passport");
 const {
   OauthGGSuccess,
   OauthGGFailure,
+  OauthGGCheck,
 } = require("../app/middlewares/ggOAuth");
 
 function Routers(app) {
@@ -28,7 +29,8 @@ function Routers(app) {
   );
   app.get("/login/fail", OauthGGFailure);
   app.get("/login/success", OauthGGSuccess);
-  
+  app.get("/api/login/check", OauthGGCheck);
+
   app.get(
     "/auth/google/callback",
     passport.authenticate("google", {
