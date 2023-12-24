@@ -22,7 +22,7 @@ function setup(app) {
     })
   );
 
-  /* app.use(
+  /*  app.use(
     cookieSession({
       name: "session",
       keys: ["lama"],

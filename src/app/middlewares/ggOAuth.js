@@ -1,45 +1,44 @@
 const jwt = require("../../configs/jwt");
 const tokenStore = require("../storages/token.store");
-const { errorInternalServer, errorUnauthorized } = require("../views/error");
+const userStore = require("../storages/user.store");
+const {
+  errorInternalServer,
+  errorUnauthorized,
+  errorBadRequest,
+} = require("../views/error");
 const { simpleSuccessResponse } = require("../views/response_to_client");
 
-async function OauthGGSuccess(req, res) {
-  var token = jwt.generateToken(req.user, "7d");
-  try {
-    await tokenStore.createToken({
-      token: token,
-      userId: req.user.userId,
-    });
-    res
-      .status(200)
-      .send(simpleSuccessResponse({ token: token, user: req.user }, "OK"));
-  } catch (err) {
-    res.status(500).send(errorInternalServer(err));
+function SetUserRequest(req, res, next) {
+  if (req.user) {
+    console.log(req.user);
+    res.redirect(`${process.env.DOMAIN_CLIENT}/`);
+  } else {
+    res.redirect(`${process.env.DOMAIN_CLIENT}/`);
   }
 }
 
 async function OauthGGCheck(req, res) {
-  try {
-    var token = jwt.generateToken(req.user, "7d");
-
-    if (!req.user) {
-      res.status(401).send(errorUnauthorized());
-    }
-
-    await tokenStore.createToken({
-      token: token,
-      userId: req.user.userId,
-    });
-    res
-      .status(200)
-      .send(simpleSuccessResponse({ token: token, user: req.user }, "OK"));
-  } catch (err) {
-    res.status(500).send(errorInternalServer(err));
+  if (!req.user) {
+    return res.status(400).send(errorBadRequest("Something went wrong!"));
   }
+
+  var token = jwt.generateToken(req.user, "7d");
+
+  await tokenStore.createToken({
+    token: token,
+    userId: req.user.userId,
+  });
+
+  var user = await userStore.findUserById(req.user.userId);
+
+  req.logout((error) => console.log(error));
+
+  res
+    .status(200)
+    .send(simpleSuccessResponse({ token: token, user: user }, "OK"));
 }
 
-async function OauthGGFailure(req, res) {
-  res.status(401).send(errorUnauthorized());
-}
-
-module.exports = { OauthGGSuccess, OauthGGFailure, OauthGGCheck };
+module.exports = {
+  OauthGGCheck,
+  SetUserRequest,
+};
