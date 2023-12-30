@@ -10,10 +10,9 @@ const { simpleSuccessResponse } = require("../views/response_to_client");
 
 function SetUserRequest(req, res, next) {
   if (req.user) {
-    console.log(req.user);
-    res.redirect(`${process.env.DOMAIN_CLIENT}/`);
+    res.redirect(`${process.env.DOMAIN_CLIENT}/login/success`);
   } else {
-    res.redirect(`${process.env.DOMAIN_CLIENT}/`);
+    res.redirect(`${process.env.DOMAIN_CLIENT}/login/failed`);
   }
 }
 

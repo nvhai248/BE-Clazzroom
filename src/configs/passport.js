@@ -83,6 +83,7 @@ function setup(app) {
             full_name: profile.displayName,
             email: profile.emails[0].value,
             image: profile.photos[0].value,
+            password: "",
             is_verified: false,
           });
 
