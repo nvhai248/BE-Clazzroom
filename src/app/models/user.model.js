@@ -10,6 +10,7 @@ const User = new Schema(
     gg_id: { type: String },
     email: { type: String },
     phone_number: { type: String },
+    student_id: { type: String },
     birthday: { type: String },
     social_id: { type: String },
     address: { type: String },
