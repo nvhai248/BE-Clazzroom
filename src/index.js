@@ -23,16 +23,31 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(express.json());
 
+app.use((err, req, res, next) => {
+  if (err instanceof TypeError || err instanceof ReferenceError) {
+    return res.status(400).json({
+      statusCode: 400,
+      type: "Bad Request",
+      message:
+        "Your request resulted in a bad request due to a server-side error.",
+    });
+  }
+  next(err);
+});
+
+app.use((err, req, res, next) => {
+  res.status(500).json({
+    statusCode: 500,
+    type: "Internal Server Error",
+    message: "An unexpected error occurred on the server.",
+  });
+});
+
+
 // implement passport
 require("./configs/passport").setup(app);
 //implement routers
 require("./routers/index.router")(app);
-
-app.use((err, req, res, next) => {
-  res
-    .status(500)
-    .json({ statusCode: 500, type: "Internal Server!", message: err.message });
-});
 
 app.listen(port, () => {
   console.log("listening on port", port);

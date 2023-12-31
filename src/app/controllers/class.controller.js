@@ -8,8 +8,11 @@ const {
   errorBadRequest,
   errorCustom,
   errNoPermission,
+  errorInternalServer,
 } = require("../views/error");
 const { simpleSuccessResponse } = require("../views/response_to_client");
+const gradeCompositionStore = require("../storages/gradeComposition.store");
+const { default: mongoose } = require("mongoose");
 
 class ClassController {
   //[GET] /classes
@@ -78,6 +81,9 @@ class ClassController {
         const teacherInfo = await userStore.findUserById(
           joinedUsers[i].user_id
         );
+
+        if (!teacherInfo) continue;
+
         teachers.push({
           _id: teacherInfo._id,
           full_name: teacherInfo.full_name,
@@ -88,6 +94,9 @@ class ClassController {
         const studentInfo = await userStore.findUserById(
           joinedUsers[i].user_id
         );
+
+        if (!studentInfo) continue;
+
         students.push({
           _id: studentInfo._id,
           full_name: studentInfo.full_name,
@@ -239,6 +248,74 @@ class ClassController {
     res
       .status(200)
       .send(simpleSuccessResponse(null, "Successfully out of class!"));
+  };
+
+  //[GET] /api/classes/:id/grades
+  getGradeCompositions = async (req, res) => {
+    const classId = req.params.id;
+
+    const gradeCompos =
+      await gradeCompositionStore.findGradeCompositionsByClassId(classId);
+    res.status(200).send(simpleSuccessResponse(gradeCompos, "Success!"));
+  };
+
+  // [PUT] /api/classes/:id/grades
+  updateGradeCompositions = async (req, res) => {
+    const classId = req.params.id;
+    const gradeCompositions = req.body;
+
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      for (let i = 0; i < gradeCompositions.length; i++) {
+        gradeCompositions[i].class_id = classId;
+
+        if (!gradeCompositions[i]._id) {
+          if (!gradeCompositions[i].state) {
+            gradeCompositions[i].state = "In-progress";
+          }
+          await gradeCompositionStore.createGradeCompositionWithSession(
+            gradeCompositions[i],
+            session
+          );
+        } else {
+          await gradeCompositionStore.updateGradeCompositionWithSession(
+            gradeCompositions[i]._id,
+            gradeCompositions[i],
+            session
+          );
+        }
+      }
+
+      await session.commitTransaction();
+      session.endSession();
+
+      res
+        .status(200)
+        .send(simpleSuccessResponse(gradeCompositions, "Success!"));
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+
+      res
+        .status(500)
+        .send(
+          errorInternalServer(
+            "Error occurred. Rollback performed. Or one name of grade compositions existed!"
+          )
+        );
+    }
+  };
+
+  //[DELETE] /api/classes/:id/grades
+  deleteGradeCompositions = async (req, res) => {
+    const gradesCompoIds = req.body;
+    for (let i = 0; i < gradesCompoIds.length; i++) {
+      await gradeCompositionStore.deleteGradeComposition(gradesCompoIds[i]._id);
+    }
+
+    res.status(200).send(simpleSuccessResponse(null, "Success deleted!"));
   };
 }
 

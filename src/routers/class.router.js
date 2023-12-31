@@ -8,6 +8,32 @@ const {
   RequireInClass,
 } = require("../app/middlewares/require");
 
+//grade composition routers
+router.get(
+  "/:id/grades",
+  authenticate,
+  RequireInClass,
+  RequireRoleTeacher,
+  classRouter.getGradeCompositions
+);
+
+router.put(
+  "/:id/grades",
+  authenticate,
+  RequireInClass,
+  RequireRoleTeacher,
+  classRouter.updateGradeCompositions
+);
+
+router.delete(
+  "/:id/grades",
+  authenticate,
+  RequireInClass,
+  RequireRoleTeacher,
+  classRouter.deleteGradeCompositions
+);
+
+// class routers
 router.delete("/:id/out", authenticate, RequireInClass, classRouter.outOfClass);
 router.get("/generate-class_code", classRouter.generateClassCode);
 router.get("/", authenticate, classRouter.getListClasses);
