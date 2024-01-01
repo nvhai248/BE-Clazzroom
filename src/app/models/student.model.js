@@ -2,19 +2,18 @@ const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 
-const Grade = new Schema(
+const Student = new Schema(
   {
-    value: { type: Number },
-    grade_composition_id: { type: String },
-    student_id: { type: String },
     class_id: { type: String },
+    student_id: { type: String },
+    full_name: { type: String },
     created_at: { type: String },
     updated_at: { type: String },
   },
   {
-    collection: "grades",
+    collection: "students",
     timestamps: true,
   }
 );
 
-module.exports = mongoose.model("grades", Grade);
+module.exports = mongoose.model("students", Student);

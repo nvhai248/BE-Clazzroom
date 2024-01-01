@@ -13,6 +13,8 @@ const {
 const { simpleSuccessResponse } = require("../views/response_to_client");
 const gradeCompositionStore = require("../storages/gradeComposition.store");
 const { default: mongoose } = require("mongoose");
+const studentStore = require("../storages/student.store");
+const gradeStore = require("../storages/grade.store");
 
 class ClassController {
   //[GET] /classes
@@ -316,6 +318,24 @@ class ClassController {
     }
 
     res.status(200).send(simpleSuccessResponse(null, "Success deleted!"));
+  };
+
+  // [GET] /api/classes/:id/student-list
+  getStudentList = async (req, res) => {
+    const classId = req.params.id;
+
+    var students = await studentStore.findStudentsByClassId(classId);
+
+    for (var i = 0; i < students.length; i++) {
+      students[i].grades = await gradeStore.findGradesByStudentIdAndClassId(
+        students[i].student_id,
+        classId
+      );
+    }
+
+    res
+      .status(200)
+      .send(simpleSuccessResponse(students, "Successfully found students!"));
   };
 }
 

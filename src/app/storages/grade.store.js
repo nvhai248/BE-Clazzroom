@@ -18,6 +18,12 @@ class GradeStore {
   deleteGrade = async (id) => {
     Grade.deleteOne({ _id: id });
   };
+
+  findGradesByStudentIdAndClassId = async (studentId, classId) => {
+    return mongooseHelper.multiMongooseToObject(
+      await Grade.find({ class_id: classId, student_id: studentId })
+    );
+  };
 }
 
 module.exports = new GradeStore();

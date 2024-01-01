@@ -8,6 +8,14 @@ const {
   RequireInClass,
 } = require("../app/middlewares/require");
 
+// grade ab=ng student list router
+router.get(
+  "/:id/student-list",
+  authenticate,
+  RequireInClass,
+  classRouter.getStudentList
+);
+
 //grade composition routers
 router.get(
   "/:id/grades",
