@@ -337,6 +337,131 @@ class ClassController {
       .status(200)
       .send(simpleSuccessResponse(students, "Successfully found students!"));
   };
+
+  // [POST] /api/classes/:id/student-list
+  createListStudent = async (req, res) => {
+    const classId = req.params.id;
+    const students = req.body;
+
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      for (var i = 0; i < students.length; i++) {
+        students[i].class_id = classId;
+        await studentStore.create(students[i]);
+      }
+
+      res
+        .status(200)
+        .send(simpleSuccessResponse(null, "Success create list student!"));
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+
+      res
+        .status(500)
+        .send(
+          errorInternalServer(
+            "Error occurred. Rollback performed. Or one student Id is existed!"
+          )
+        );
+    }
+  };
+
+  // [DELETE] /api/classes/:id/student-list
+  deleteStudents = async (req, res) => {
+    const classId = req.params.id;
+    const studentIds = req.body;
+
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      for (var i = 0; i < students.length; i++) {
+        await studentStore.deleteStudent(studentIds[i], classId);
+      }
+
+      res
+        .status(200)
+        .send(simpleSuccessResponse(null, "Success delete students!"));
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+
+      res
+        .status(500)
+        .send(errorInternalServer("Error occurred. Rollback performed!"));
+    }
+  };
+
+  // [PUT] /api/classes/:id/student-list/:student_id
+  addGradesToStudentInAClass = async (req, res) => {
+    const classId = req.params.id;
+    const grades = req.body;
+    const studentId = req.params.student_id;
+
+    if (!studentId) {
+      res.status(404).send(errorBadRequest("Student Id is required!"));
+    }
+
+    const student = await studentStore.findStudentByStudentIdAndClassId(
+      studentId,
+      classId
+    );
+
+    if (!student) {
+      res.status(404).send(errorBadRequest("Can not find student!"));
+    }
+
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    try {
+      for (var i = 0; i < grades.length; i++) {
+        if (
+          !(await gradeCompositionStore.findGradeCompositionById(
+            grades[i].grade_composition_id
+          ))
+        ) {
+          continue;
+        }
+
+        if (!grades[i]._id) {
+          await gradeStore.updateGrade(
+            grades[i]._id,
+            {
+              value: grades[i].value,
+              grade_composition_id: grades[i].grade_composition_id,
+              student_id: studentId,
+              class_id: classId,
+            },
+            session
+          );
+        } else {
+          await gradeStore.createGrade(
+            {
+              value: grades[i].value,
+              grade_composition_id: grades[i].grade_composition_id,
+              student_id: studentId,
+              class_id: classId,
+            },
+            session
+          );
+        }
+      }
+
+      res
+        .status(200)
+        .send(simpleSuccessResponse(null, "Success delete students!"));
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+
+      res
+        .status(500)
+        .send(errorInternalServer("Error occurred. Rollback performed!"));
+    }
+  };
 }
 
 module.exports = new ClassController();

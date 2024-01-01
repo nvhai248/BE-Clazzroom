@@ -16,6 +16,30 @@ router.get(
   classRouter.getStudentList
 );
 
+router.post(
+  "/:id/student-list",
+  authenticate,
+  RequireInClass,
+  RequireRoleTeacher,
+  classRouter.createListStudent
+);
+
+router.delete(
+  "/:id/student-list",
+  authenticate,
+  RequireInClass,
+  RequireRoleTeacher,
+  classRouter.deleteStudents
+);
+
+router.put(
+  "/:id/student-list/:student_id",
+  authenticate,
+  RequireInClass,
+  RequireRoleTeacher,
+  classRouter.addGradesToStudentInAClass
+);
+
 //grade composition routers
 router.get(
   "/:id/grades",

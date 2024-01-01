@@ -2,17 +2,16 @@ const Grade = require("../models/grade.model");
 const mongooseHelper = require("../utils/mongoose.helper");
 
 class GradeStore {
-  createGrade = (gradeData) => {
-    var newGrade = new Grade(gradeData);
-    newGrade.save();
+  createGrade = async (gradeData, session) => {
+    await Grade.create([gradeData], { session });
   };
 
   findGradeById = async (id) => {
     return mongooseHelper.mongoosesToObject(await Grade.findOne({ _id: id }));
   };
 
-  updateGrade = async (id, gradeData) => {
-    Grade.updateOne({ _id: id }, gradeData);
+  updateGrade = async (id, gradeData, session) => {
+    await Grade.updateOne({ _id: id }, gradeData).session(session);
   };
 
   deleteGrade = async (id) => {
