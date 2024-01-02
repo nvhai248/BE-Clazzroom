@@ -314,7 +314,7 @@ class ClassController {
   deleteGradeCompositions = async (req, res) => {
     const gradesCompoIds = req.body;
     for (let i = 0; i < gradesCompoIds.length; i++) {
-      await gradeCompositionStore.deleteGradeComposition(gradesCompoIds[i]._id);
+      await gradeCompositionStore.deleteGradeComposition(gradesCompoIds[i].grade_composition_id);
     }
 
     res.status(200).send(simpleSuccessResponse(null, "Success deleted!"));

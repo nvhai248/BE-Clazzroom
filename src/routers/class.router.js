@@ -45,7 +45,6 @@ router.get(
   "/:id/grades",
   authenticate,
   RequireInClass,
-  RequireRoleTeacher,
   classRouter.getGradeCompositions
 );
 
