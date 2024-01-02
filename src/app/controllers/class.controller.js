@@ -416,7 +416,7 @@ class ClassController {
     const studentId = req.params.student_id;
 
     if (!studentId) {
-      res.status(404).send(errorBadRequest("Student Id is required!"));
+      return res.status(404).send(errorBadRequest("Student Id is required!"));
     }
 
     const student = await studentStore.findStudentByStudentIdAndClassId(
@@ -425,48 +425,40 @@ class ClassController {
     );
 
     if (!student) {
-      res.status(404).send(errorBadRequest("Can not find student!"));
+      return res.status(404).send(errorBadRequest("Can not find student!"));
     }
 
     const session = await mongoose.startSession();
     session.startTransaction();
+
     try {
-      for (var i = 0; i < grades.length; i++) {
-        if (
-          !(await gradeCompositionStore.findGradeCompositionById(
+      for (let i = 0; i < grades.length; i++) {
+        const gradeCompositionExists =
+          await gradeCompositionStore.findGradeCompositionById(
             grades[i].grade_composition_id
-          ))
-        ) {
+          );
+
+        if (!gradeCompositionExists) {
           continue;
         }
 
-        if (!grades[i]._id) {
-          await gradeStore.updateGrade(
-            grades[i]._id,
-            {
-              value: grades[i].value,
-              grade_composition_id: grades[i].grade_composition_id,
-              student_id: studentId,
-              class_id: classId,
-            },
-            session
-          );
-        } else {
-          await gradeStore.createGrade(
-            {
-              value: grades[i].value,
-              grade_composition_id: grades[i].grade_composition_id,
-              student_id: studentId,
-              class_id: classId,
-            },
-            session
-          );
-        }
+        await gradeStore.createOrUpdateGrade(
+          {
+            value: grades[i].value,
+            grade_composition_id: grades[i].grade_composition_id,
+            student_id: studentId,
+            class_id: classId,
+          },
+          session
+        );
       }
+
+      await session.commitTransaction();
+      session.endSession();
 
       res
         .status(200)
-        .send(simpleSuccessResponse(null, "Success delete students!"));
+        .send(simpleSuccessResponse(null, "Success adding grades to student!"));
     } catch (error) {
       await session.abortTransaction();
       session.endSession();

@@ -13,7 +13,6 @@ class StudentStore {
       throw new Error("Error creating or updating student!");
     }
   };
-  
 
   findStudentsByClassId = async (classId) => {
     return mongooseHelper.multiMongooseToObject(
