@@ -68,6 +68,12 @@ class userStore {
   editProfileByEmail = async (email, data) => {
     await User.updateOne({ _id: email }, data);
   };
+
+  findUserByStudentId = async (studentId) => {
+    return mongooseHelper.mongoosesToObject(
+      await User.findOne({ student_id: studentId })
+    );
+  };
 }
 
 module.exports = new userStore();
