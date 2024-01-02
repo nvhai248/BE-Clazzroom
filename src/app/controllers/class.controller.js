@@ -347,10 +347,13 @@ class ClassController {
     session.startTransaction();
 
     try {
-      for (var i = 0; i < students.length; i++) {
+      for (let i = 0; i < students.length; i++) {
         students[i].class_id = classId;
-        await studentStore.create(students[i]);
+        await studentStore.createOrUpdate(students[i], session);
       }
+
+      await session.commitTransaction();
+      session.endSession();
 
       res
         .status(200)
@@ -378,9 +381,22 @@ class ClassController {
     session.startTransaction();
 
     try {
-      for (var i = 0; i < students.length; i++) {
-        await studentStore.deleteStudent(studentIds[i], classId);
+      for (let i = 0; i < studentIds.length; i++) {
+        try {
+          await studentStore.deleteStudentByStudentIdAndClassId(
+            studentIds[i].student_id,
+            classId,
+            session
+          );
+        } catch (error) {
+          console.log(
+            `Error deleting student ${studentIds[i].student_id}: ${error.message}`
+          );
+        }
       }
+
+      await session.commitTransaction();
+      session.endSession();
 
       res
         .status(200)
@@ -389,9 +405,7 @@ class ClassController {
       await session.abortTransaction();
       session.endSession();
 
-      res
-        .status(500)
-        .send(errorInternalServer("Error occurred. Rollback performed!"));
+      res.status(500).send(errorInternalServer("Cannot delete students"));
     }
   };
 

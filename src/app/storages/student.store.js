@@ -2,15 +2,18 @@ const Student = require("../models/student.model");
 const mongooseHelper = require("../utils/mongoose.helper");
 
 class StudentStore {
-  create = async (student) => {
-    var isExisted = await Student.findOne({ student_id: student.student_id });
-
-    if (isExisted) {
-      throw new Error("Student Id already exists!");
+  createOrUpdate = async (student, session) => {
+    try {
+      await Student.findOneAndUpdate(
+        { student_id: student.student_id },
+        { $setOnInsert: student },
+        { upsert: true, session }
+      );
+    } catch (error) {
+      throw new Error("Error creating or updating student!");
     }
-
-    await Student.create([student]);
   };
+  
 
   findStudentsByClassId = async (classId) => {
     return mongooseHelper.multiMongooseToObject(
@@ -18,8 +21,16 @@ class StudentStore {
     );
   };
 
-  deleteStudentByStudentIdAndClassId = async (studentId, classId) => {
-    await Student.deleteOne({ student_id: studentId, class_id: classId });
+  deleteStudentByStudentIdAndClassId = async (studentId, classId, session) => {
+    try {
+      await Student.deleteOne({
+        student_id: studentId,
+        class_id: classId,
+      }).session(session);
+    } catch (error) {
+      console.log(error.message);
+      throw new Error(error.message);
+    }
   };
 
   findStudentByStudentIdAndClassId = async (studentId, classId) => {
