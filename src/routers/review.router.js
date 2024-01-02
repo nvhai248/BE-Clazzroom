@@ -12,5 +12,6 @@ router.get(
   RequireRoleTeacher,
   reviewRouter.getReviewDetail
 );
-
+router.post("/", authenticate, reviewRouter.createReview);
+router.get("/:id/comments", authenticate, reviewRouter.getListComments);
 module.exports = router;

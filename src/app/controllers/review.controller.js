@@ -1,4 +1,5 @@
 const classStore = require("../storages/class.store");
+const commentStore = require("../storages/comment.store");
 const gradeCompositionStore = require("../storages/gradeComposition.store");
 const gradeReviewStore = require("../storages/gradeReview.store");
 const studentStore = require("../storages/student.store");
@@ -94,6 +95,35 @@ class ReviewController {
     };
 
     res.status(200).send(simpleSuccessResponse(review, "Successfully!"));
+  };
+
+  // [POST] /reviews
+  createReview = async (req, res) => {
+    const data = req.body;
+
+    if (!data) {
+      res
+        .status(400)
+        .send(errorBadRequest("Please provide a valid review data!"));
+    }
+
+    data.state = "Pending";
+    gradeReviewStore.create(data);
+    res.status(200).send(simpleSuccessResponse(data, "Successfully!"));
+  };
+
+  // [GET] /api/reviews/:id/comments
+  getListComments = async (req, res) => {
+    const id = req.params.id;
+
+    if (!id) {
+      res
+        .status(400)
+        .send(errorBadRequest("Please provide a valid review id!"));
+    }
+
+    let comments = await commentStore.findCommentsByReviewId(id);
+    res.status(200).send(simpleSuccessResponse(comments, "Successfully!"));
   };
 }
 
