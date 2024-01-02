@@ -1009,6 +1009,158 @@
           }
         }
       }
+    },
+    "api/classes/:id/student-list": {
+      "get": {
+        "tags": ["grades"],
+        "summary": "Get list student (include grades) of class",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "Class Id",
+            "in": "path",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success get grade compositions",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/student"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["grades"],
+        "summary": "Upload list student (not include grades) of class",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "Class Id",
+            "in": "path",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "Students",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/studentInput" }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success get upload students",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/studentInput"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["grades"],
+        "summary": "Delete list student of class",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "Class Id",
+            "in": "path",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "Students",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "student_id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success delete students"
+          }
+        }
+      }
+    },
+    "api/classes/:id/student-list/:student_id": {
+      "put": {
+        "tags": ["grades"],
+        "summary": "Upload Grades of student in class",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "Class Id",
+            "in": "path",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "Grades",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "grade_composition_id": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success get upload grades"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -1186,6 +1338,43 @@
       "type": "object",
       "properties": {
         "grade_composition_id": {
+          "type": "string"
+        }
+      }
+    },
+    "student": {
+      "type": "object",
+      "properties": {
+        "class_id": {
+          "type": "string"
+        },
+        "student_id": {
+          "type": "string"
+        },
+        "full_name": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "grades": {
+          "type": "array",
+          "items": {}
+        }
+      }
+    },
+    "studentInput": {
+      "type": "object",
+      "properties": {
+        "student_id": {
+          "type": "string"
+        },
+        "full_name": {
           "type": "string"
         }
       }
