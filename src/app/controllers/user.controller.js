@@ -157,7 +157,7 @@ class USerController {
       imageInfo.created_by = userId;
 
       imageStore.create(imageInfo);
-      await userStore.editProfile(userId, { image: imageInfo });
+      await userStore.editProfile(userId, { image: imageInfo.url });
       var user = await userStore.findUserById(userId);
       res
         .status(200)

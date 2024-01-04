@@ -38,6 +38,20 @@ class GradeStore {
       await Grade.find({ class_id: classId, student_id: studentId })
     );
   };
+
+  findGradeByStudentIdAndClassIdAndGradeCompositionId = async (
+    studentId,
+    classId,
+    gradeCompositionId
+  ) => {
+    return mongooseHelper.multiMongooseToObject(
+      await Grade.find({
+        class_id: classId,
+        student_id: studentId,
+        grade_composition_id: gradeCompositionId,
+      })
+    );
+  };
 }
 
 module.exports = new GradeStore();

@@ -26,6 +26,7 @@ function Routers(app) {
     passport.authenticate("google", { scope: ["profile", "email"] })
   );
   app.post("/api/login/check", passport.session(), OauthGGCheck);
+  app.get("/api/login/check", passport.session(), OauthGGCheck);
 
   app.get(
     "/auth/google/callback",

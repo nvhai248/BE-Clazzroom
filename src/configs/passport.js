@@ -84,7 +84,7 @@ function setup(app) {
             email: profile.emails[0].value,
             image: profile.photos[0].value,
             password: "",
-            is_verified: false,
+            is_verified: true,
           });
 
           return done(null, {

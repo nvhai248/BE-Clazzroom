@@ -3,15 +3,24 @@ const router = express.Router();
 
 const reviewRouter = require("../app/controllers/review.controller");
 const authenticate = require("../app/middlewares/authenticate");
-const { RequireRoleTeacher } = require("../app/middlewares/require");
+const {
+  RequireRoleTeacher,
+  RequireRoleStudent,
+  RequireHavePermissionInReview,
+} = require("../app/middlewares/require");
 
-router.get("/", authenticate, RequireRoleTeacher, reviewRouter.getListReview);
+router.get("/", authenticate, reviewRouter.getListReview);
 router.get(
   "/:id",
   authenticate,
-  RequireRoleTeacher,
+  RequireHavePermissionInReview,
   reviewRouter.getReviewDetail
 );
-router.post("/", authenticate, reviewRouter.createReview);
-router.get("/:id/comments", authenticate, reviewRouter.getListComments);
+router.post("/", authenticate, RequireRoleStudent, reviewRouter.createReview);
+router.get(
+  "/:id/comments",
+  authenticate,
+  RequireHavePermissionInReview,
+  reviewRouter.getListComments
+);
 module.exports = router;
