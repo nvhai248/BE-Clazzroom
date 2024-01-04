@@ -14,7 +14,7 @@ const User = new Schema(
     birthday: { type: String },
     social_id: { type: String },
     address: { type: String },
-    image: { type: Object },
+    image: { type: String },
     role: { type: String },
     is_verified: { type: Boolean },
     created_at: { type: String },

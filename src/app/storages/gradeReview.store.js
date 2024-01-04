@@ -6,10 +6,34 @@ class GradeReviewStore {
     GradeReview.create([gradeReviewData]);
   };
 
-  getListByStateAndClassId = async (state, classId) => {
-    return mongooseHelper.multiMongooseToObject(
-      await GradeReview.find({ class_id: classId, state: state })
-    );
+  getListByStateAndClassId = async (userId, state, classId, sort) => {
+    let query = {
+      user_id: userId,
+    };
+
+    if (state) {
+      query.state = state;
+    }
+
+    if (classId) {
+      query.class_id = classId;
+    }
+
+    let sortOptions = {};
+
+    if (sort === "des_last_updated") {
+      sortOptions = { updated_at: -1 };
+    } else if (sort === "asc_last_updated") {
+      sortOptions = { updated_at: 1 };
+    }
+
+    let gradeReviewsQuery = GradeReview.find(query);
+
+    if (Object.keys(sortOptions).length !== 0) {
+      gradeReviewsQuery = gradeReviewsQuery.sort(sortOptions);
+    }
+
+    return mongooseHelper.multiMongooseToObject(await gradeReviewsQuery);
   };
 
   getReviewById = async (id) => {
