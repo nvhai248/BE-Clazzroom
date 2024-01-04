@@ -9,7 +9,7 @@ const port = 3001;
 // connect to db
 require("./configs/db/index.db").connect();
 
-app.use(cors());
+app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 
 app.use(
   express.urlencoded({
