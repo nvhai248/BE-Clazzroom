@@ -1,7 +1,12 @@
 const classStore = require("../storages/class.store");
 const classRegistrationStore = require("../storages/classRegistration.store");
 const gradeReviewStore = require("../storages/gradeReview.store");
-const { errNoPermission, errorBadRequest } = require("../views/error");
+const {
+  errNoPermission,
+  errorBadRequest,
+  errorCustom,
+  errorNotFound,
+} = require("../views/error");
 
 function RequireRoleStudent(req, res, next) {
   const user = req.user;
@@ -37,6 +42,11 @@ async function RequireHavePermissionInReview(req, res, next) {
   const review = await gradeReviewStore.getReviewById(id);
   // check if student => is owner => access else => no access
   // check if teacher => if in class => access else => no access
+
+  if (!review) {
+    return res.status(404).send(errorNotFound("Review"));
+  }
+
   if (
     (mainUser.role == "student" && mainUser.userId != review.user_id) ||
     (mainUser.role == "teacher" &&
@@ -64,7 +74,7 @@ async function RequireInClass(req, res, next) {
   var isIn = await classStore.findClassById(classId);
 
   if (!isIn) {
-    return res.status(400).send(errorBadRequest("Class not found!"));
+    return res.status(404).send(errorNotFound("Class!"));
   }
 
   var isJoin = await classRegistrationStore.findByClassIdAndUserId(

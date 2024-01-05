@@ -89,7 +89,7 @@ class USerController {
 
     tokenStore.createToken({
       token: token,
-      userId: data._id,
+      userId: user._id,
     });
 
     res

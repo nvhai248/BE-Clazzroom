@@ -44,13 +44,17 @@ class GradeStore {
     classId,
     gradeCompositionId
   ) => {
-    return mongooseHelper.multiMongooseToObject(
-      await Grade.find({
+    return mongooseHelper.mongoosesToObject(
+      await Grade.findOne({
         class_id: classId,
         student_id: studentId,
         grade_composition_id: gradeCompositionId,
       })
     );
+  };
+
+  updateById = async (gradeId, newData) => {
+    await Grade.updateOne({ _id: gradeId }, newData);
   };
 }
 

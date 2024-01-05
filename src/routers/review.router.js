@@ -23,4 +23,16 @@ router.get(
   RequireHavePermissionInReview,
   reviewRouter.getListComments
 );
+router.post(
+  "/:id/final-decision",
+  authenticate,
+  RequireRoleTeacher,
+  reviewRouter.makeFinalDecision
+);
+router.post(
+  "/:id/comments",
+  authenticate,
+  RequireHavePermissionInReview,
+  reviewRouter.addCmt
+);
 module.exports = router;

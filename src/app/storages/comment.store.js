@@ -7,6 +7,10 @@ class CommentStore {
       await Comment.find({ review_id: reviewId })
     );
   };
+
+  createNewComment = async (cmtData) => {
+    Comment.create([cmtData]);
+  };
 }
 
 module.exports = new CommentStore();

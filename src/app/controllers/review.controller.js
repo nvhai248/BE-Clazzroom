@@ -178,6 +178,8 @@ class ReviewController {
     data.student_id = student.student_id;
     data.current_grade = grade.value;
     data.user_id = userId;
+    data.grade_id = grade._id;
+
     gradeReviewStore.create(data);
     res.status(200).send(simpleSuccessResponse(data, "Successfully!"));
   };
@@ -188,6 +190,76 @@ class ReviewController {
 
     let comments = await commentStore.findCommentsByReviewId(id);
     res.status(200).send(simpleSuccessResponse(comments, "Successfully!"));
+  };
+
+  // [POST] /api/reviews/:id/final-decision
+  makeFinalDecision = async (req, res) => {
+    const id = req.params.id;
+    const body = req.body;
+
+    if (!id || !body) {
+      res.status(400).send(errorBadRequest("Invalid id!"));
+    }
+
+    let finalGrade = 0;
+    const review = await gradeReviewStore.getReviewById(id);
+
+    // check teacher is in class
+    if (
+      !(await classRegistrationStore.findByClassIdAndUserId(
+        review.class_id,
+        req.user.userId
+      ))
+    ) {
+      return res
+        .status(403)
+        .send(errNoPermission("You do not have permission to access!"));
+    }
+
+    if (!body.new_grade) {
+      finalGrade = review.current_grade;
+    } else {
+      finalGrade = body.new_grade;
+    }
+    gradeStore.updateById(review.grade_id, { value: finalGrade });
+
+    commentStore.createNewComment({
+      type: "closing",
+      final_grade: finalGrade,
+      review_id: id,
+    });
+
+    res
+      .status(200)
+      .send(
+        simpleSuccessResponse(
+          { final_grade: finalGrade },
+          "Successfully final review!"
+        )
+      );
+  };
+
+  // [POST] /api/reviews/:id/comments
+  addCmt = async (req, res) => {
+    const id = req.params.id;
+    const body = req.body;
+
+    if (!id || !body) {
+      res.status(400).send(errorBadRequest("Invalid id!"));
+    }
+
+    const data = {
+      type: "comment",
+      user_id: req.user.userId,
+      review_id: id,
+      content: body.content,
+    };
+
+    commentStore.createNewComment(data);
+
+    res
+      .status(200)
+      .send(simpleSuccessResponse(data, "Successfully final review!"));
   };
 }
 

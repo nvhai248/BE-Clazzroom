@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 
 const Comment = new Schema(
   {
-    new_value: { type: Number },
+    final_grade: { type: Number },
     type: { type: String },
     content: { type: String },
     user_id: { type: String },
