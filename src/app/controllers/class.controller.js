@@ -15,6 +15,8 @@ const gradeCompositionStore = require("../storages/gradeComposition.store");
 const { default: mongoose } = require("mongoose");
 const studentStore = require("../storages/student.store");
 const gradeStore = require("../storages/grade.store");
+const gradeReviewStore = require("../storages/gradeReview.store");
+const commentStore = require("../storages/comment.store");
 
 class ClassController {
   //[GET] /classes
@@ -314,7 +316,9 @@ class ClassController {
   deleteGradeCompositions = async (req, res) => {
     const gradesCompoIds = req.body;
     for (let i = 0; i < gradesCompoIds.length; i++) {
-      await gradeCompositionStore.deleteGradeComposition(gradesCompoIds[i].grade_composition_id);
+      await gradeCompositionStore.deleteGradeComposition(
+        gradesCompoIds[i].grade_composition_id
+      );
     }
 
     res.status(200).send(simpleSuccessResponse(null, "Success deleted!"));
@@ -451,6 +455,25 @@ class ClassController {
           },
           session
         );
+
+        let review =
+          await gradeReviewStore.getReviewByClassIdStudentIdAndGradeCompId(
+            studentId,
+            grades[i].grade_composition_id,
+            classId
+          );
+
+        if (review && review.current_grade != grades[i].value) {
+          commentStore.createNewComment({
+            type: "updating",
+            new_grade: grades[i].value,
+            review_id: review._id,
+          });
+
+          gradeReviewStore.updateReviewDataById(review._id, {
+            current_grade: grades[i].value,
+          });
+        }
       }
 
       await session.commitTransaction();
@@ -458,7 +481,9 @@ class ClassController {
 
       res
         .status(200)
-        .send(simpleSuccessResponse(null, "Success adding grades to student!"));
+        .send(
+          simpleSuccessResponse(grades, "Success adding grades to student!")
+        );
     } catch (error) {
       await session.abortTransaction();
       session.endSession();

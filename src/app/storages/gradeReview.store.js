@@ -41,6 +41,24 @@ class GradeReviewStore {
       await GradeReview.findOne({ _id: id })
     );
   };
+
+  updateReviewDataById = async (id, data) => {
+    await GradeReview.updateOne({ _id: id }, data);
+  };
+
+  getReviewByClassIdStudentIdAndGradeCompId = async (
+    StudentId,
+    GradeCompId,
+    ClassID
+  ) => {
+    return mongooseHelper.mongoosesToObject(
+      await GradeReview.findOne({
+        student_id: StudentId,
+        grade_composition_id: GradeCompId,
+        class_id: ClassID,
+      })
+    );
+  };
 }
 
 module.exports = new GradeReviewStore();

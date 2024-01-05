@@ -222,6 +222,7 @@ class ReviewController {
       finalGrade = body.new_grade;
     }
     gradeStore.updateById(review.grade_id, { value: finalGrade });
+    gradeReviewStore.updateReviewDataById(id, { current_grade: finalGrade });
 
     commentStore.createNewComment({
       type: "closing",
