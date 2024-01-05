@@ -56,8 +56,8 @@ router.put(
   classRouter.updateGradeCompositions
 );
 
-router.delete(
-  "/:id/grades",
+router.post(
+  "/:id/grades/delete",
   authenticate,
   RequireInClass,
   RequireRoleTeacher,

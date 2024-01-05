@@ -25,12 +25,13 @@ function Routers(app) {
     "/auth/google",
     passport.authenticate("google", { scope: ["profile", "email"] })
   );
-  app.post("/api/login/check", passport.session(), OauthGGCheck);
+
   app.get("/api/login/check", passport.session(), OauthGGCheck);
 
   app.get(
     "/auth/google/callback",
     passport.authenticate("google", {
+      failureMessage: "Cannot login, please try again!",
       successMessage: "OK",
       session: true,
     }),
