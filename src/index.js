@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const { startSubscribers } = require("./configs/pubsub_rabbitmq/sub");
 require("dotenv").config();
 
 const app = express();
@@ -16,6 +17,9 @@ app.use(
     extended: true,
   })
 );
+
+// run subscribers
+startSubscribers();
 
 // Make sure form data and file submissions are processed
 app.use(bodyParser.json());
@@ -43,9 +47,9 @@ app.use((err, req, res, next) => {
   });
 });
 
-
 // implement passport
 require("./configs/passport").setup(app);
+
 //implement routers
 require("./routers/index.router")(app);
 

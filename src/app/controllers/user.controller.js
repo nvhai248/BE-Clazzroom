@@ -20,6 +20,7 @@ const {
 } = require("../../configs/nodemailer");
 const { generatePassword } = require("../utils/users.helper");
 const blackTokenStore = require("../storages/blackToken.store");
+const { publishMessage } = require("../../configs/pubsub_rabbitmq/publisher");
 
 class USerController {
   // [GET] api/users/profile
@@ -29,6 +30,8 @@ class USerController {
     if (!user) {
       res.status(404).send(errorNotFound("User"));
     }
+
+    publishMessage("test", { data: "OK!" });
 
     res.status(200).send(simpleSuccessResponse(user, "ok"));
   }
