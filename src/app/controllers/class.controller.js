@@ -17,6 +17,7 @@ const studentStore = require("../storages/student.store");
 const gradeStore = require("../storages/grade.store");
 const gradeReviewStore = require("../storages/gradeReview.store");
 const commentStore = require("../storages/comment.store");
+const { publishMessage } = require("../../configs/pubsub_rabbitmq/publisher");
 
 class ClassController {
   //[GET] /classes
@@ -464,14 +465,9 @@ class ClassController {
           );
 
         if (review && review.current_grade != grades[i].value) {
-          commentStore.createNewComment({
-            type: "updating",
+          publishMessage("TeacherUpdateGrade", {
             new_grade: grades[i].value,
             review_id: review._id,
-          });
-
-          gradeReviewStore.updateReviewDataById(review._id, {
-            current_grade: grades[i].value,
           });
         }
       }

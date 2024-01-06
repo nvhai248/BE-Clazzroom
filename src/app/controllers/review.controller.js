@@ -1,3 +1,4 @@
+const { publishMessage } = require("../../configs/pubsub_rabbitmq/publisher");
 const classStore = require("../storages/class.store");
 const classRegistrationStore = require("../storages/classRegistration.store");
 const commentStore = require("../storages/comment.store");
@@ -224,10 +225,13 @@ class ReviewController {
     gradeStore.updateById(review.grade_id, { value: finalGrade });
     gradeReviewStore.updateReviewDataById(id, { current_grade: finalGrade });
 
-    commentStore.createNewComment({
-      type: "closing",
-      final_grade: finalGrade,
+    publishMessage("TeacherMakeFinalDecision", {
       review_id: id,
+      final_grade: finalGrade,
+      review_owner: review.user_id,
+      class_id: review.class_id,
+      user_id: req.user.userId,
+      grade_composition_id: review.grade_composition_id,
     });
 
     res

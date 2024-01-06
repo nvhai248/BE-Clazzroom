@@ -2,6 +2,7 @@ const userRouter = require("./user.router");
 const uploadImageRouter = require("./image.router");
 const classRouter = require("./class.router");
 const reviewRouter = require("./review.router");
+const notificationRouter = require("./notification.router");
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("../../swagger.json");
 const passport = require("passport");
@@ -12,6 +13,7 @@ function Routers(app) {
   app.use("/api/users", userRouter);
   app.use("/api/uploads", uploadImageRouter);
   app.use("/api/reviews", reviewRouter);
+  app.use("/api/notifications", notificationRouter);
   app.get("/api/", (req, res) => {
     res.send({ message: "Deploy Ok!" });
   });
