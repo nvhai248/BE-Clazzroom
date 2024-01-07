@@ -17,7 +17,7 @@ async function subscribeToMessages(topic, callback) {
     (message) => {
       if (message) {
         const messageData = JSON.parse(message.content.toString());
-        console.log(`Received message for topic '${topic}':`, messageData);
+        console.log(`Received message for topic '${topic}'`);
         callback(messageData);
       }
     },

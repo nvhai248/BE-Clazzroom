@@ -262,6 +262,11 @@ class ReviewController {
 
     commentStore.createNewComment(data);
 
+    publishMessage("UserAddComment", {
+      review_id: id,
+      user_id: req.user.userId,
+    });
+
     res
       .status(200)
       .send(simpleSuccessResponse(data, "Successfully final review!"));

@@ -4,6 +4,9 @@ const {
 const {
   RunCreateCommentAndUpdateCurrentGradeInReview,
 } = require("./jobs/job_after_teacher_update_grade");
+const {
+  RunCreateNotificationsAfterUserAddComment,
+} = require("./jobs/job_create_notification_after_user_add_cmt");
 const { subscribeToMessages } = require("./subscriber");
 
 // message data
@@ -27,7 +30,10 @@ function startSubscribers() {
     RunCreateCmtAndNotificationAfterTeacherMakeFinalDecision
   );
 
-  subscribeToMessages("UserAddComment", handleMessage3);
+  subscribeToMessages(
+    "UserAddComment",
+    RunCreateNotificationsAfterUserAddComment
+  );
 
   subscribeToMessages("StudentCreateReview", handleMessage4);
 }
@@ -35,11 +41,6 @@ function startSubscribers() {
 function handleMessage1(message) {
   console.log("Handling message for 'TeacherFinalizedGrade':", message);
   // Process message for 'TeacherFinalizedGrade'
-}
-
-function handleMessage3(message) {
-  console.log("Handling message for 'UserAddComment':", message);
-  // Process message for 'UserAddComment'
 }
 
 function handleMessage4(message) {

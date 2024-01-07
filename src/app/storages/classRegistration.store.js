@@ -32,6 +32,19 @@ class ClassRegistrationStore {
   deleteRegistration = async (classId, userId) => {
     await ClassRegistration.deleteOne({ class_id: classId, user_id: userId });
   };
+
+  findClassRegistrationsByClassIdAndRole = async (classId, role) => {
+    let query = {
+      class_id: classId,
+    };
+    if (role == "student" || role == "teacher") {
+      query.role = role;
+    }
+
+    return mongooseHelper.multiMongooseToObject(
+      await ClassRegistration.find(query)
+    );
+  };
 }
 
 module.exports = new ClassRegistrationStore();

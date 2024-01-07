@@ -10,7 +10,7 @@ async function publishMessage(topic, message) {
   const messageData = JSON.stringify({ topic, message });
 
   channel.publish(exchangeName, topic, Buffer.from(messageData));
-  console.log(`Message sent to topic '${topic}':`, message);
+  console.log(`Message sent to topic '${topic}'`);
 
   channelPool.release(channel); // Return channel to pool
 }
