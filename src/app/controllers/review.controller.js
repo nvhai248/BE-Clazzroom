@@ -7,7 +7,11 @@ const gradeCompositionStore = require("../storages/gradeComposition.store");
 const gradeReviewStore = require("../storages/gradeReview.store");
 const studentStore = require("../storages/student.store");
 const userStore = require("../storages/user.store");
-const { errNoPermission, errorBadRequest } = require("../views/error");
+const {
+  errNoPermission,
+  errorBadRequest,
+  errorCustom,
+} = require("../views/error");
 const { simpleSuccessResponse } = require("../views/response_to_client");
 
 class ReviewController {
@@ -181,7 +185,22 @@ class ReviewController {
     data.user_id = userId;
     data.grade_id = grade._id;
 
-    gradeReviewStore.create(data);
+    if (
+      await gradeReviewStore.getReviewByClassIdStudentIdAndGradeCompId(
+        data.student_id,
+        data.grade_composition_id,
+        data.class_id
+      )
+    ) {
+      return res
+        .status(404)
+        .send(errorCustom("You are already create review this grade!"));
+    }
+
+    const newReview = await gradeReviewStore.create(data);
+
+    publishMessage("StudentCreateReview", newReview[0]);
+
     res.status(200).send(simpleSuccessResponse(data, "Successfully!"));
   };
 

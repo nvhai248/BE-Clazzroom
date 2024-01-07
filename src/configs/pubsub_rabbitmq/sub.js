@@ -7,6 +7,9 @@ const {
 const {
   RunCreateNotificationsAfterUserAddComment,
 } = require("./jobs/job_create_notification_after_user_add_cmt");
+const {
+  RunCreateNotificationAfterUserCreateReview,
+} = require("./jobs/job_create_notification_after_user_create_review");
 const { subscribeToMessages } = require("./subscriber");
 
 // message data
@@ -35,17 +38,15 @@ function startSubscribers() {
     RunCreateNotificationsAfterUserAddComment
   );
 
-  subscribeToMessages("StudentCreateReview", handleMessage4);
+  subscribeToMessages(
+    "StudentCreateReview",
+    RunCreateNotificationAfterUserCreateReview
+  );
 }
 
 function handleMessage1(message) {
   console.log("Handling message for 'TeacherFinalizedGrade':", message);
   // Process message for 'TeacherFinalizedGrade'
-}
-
-function handleMessage4(message) {
-  console.log("Handling message for 'StudentCreateReview':", message);
-  // Process message for 'StudentCreateReview'
 }
 
 module.exports = { startSubscribers };

@@ -3,7 +3,7 @@ const mongooseHelper = require("../utils/mongoose.helper");
 
 class GradeReviewStore {
   create = async (gradeReviewData) => {
-    GradeReview.create([gradeReviewData]);
+    return await GradeReview.create([gradeReviewData]);
   };
 
   getListByStateAndClassId = async (userId, state, classId, sort) => {
