@@ -1,11 +1,13 @@
 const classStore = require("../storages/class.store");
 const classRegistrationStore = require("../storages/classRegistration.store");
 const gradeReviewStore = require("../storages/gradeReview.store");
+const userStore = require("../storages/user.store");
 const {
   errNoPermission,
   errorBadRequest,
   errorCustom,
   errorNotFound,
+  errorUnauthorized,
 } = require("../views/error");
 
 function RequireRoleStudent(req, res, next) {
@@ -23,6 +25,16 @@ function RequireRoleTeacher(req, res, next) {
 
   if (user.role != "teacher") {
     return res.status(403).send(errNoPermission("You are not a teacher!"));
+  }
+
+  next();
+}
+
+function RequireRoleAdmin(req, res, next) {
+  const user = req.user;
+
+  if (user.role != "admin") {
+    return res.status(403).send(errNoPermission("You are not a admin!"));
   }
 
   next();
@@ -63,6 +75,22 @@ async function RequireHavePermissionInReview(req, res, next) {
   next();
 }
 
+async function RequireNotBanned(req, res, next) {
+  const userId = req.user.userId;
+
+  const user = await userStore.findUserById(userId);
+
+  if (!user) {
+    return res.status(401).send(errorUnauthorized());
+  }
+
+  if (user.status == false) {
+    return res.status(403).send(errNoPermission("You are banned!"));
+  }
+
+  next();
+}
+
 async function RequireInClass(req, res, next) {
   const userId = req.user.userId;
   const classId = req.params.id;
@@ -94,4 +122,6 @@ module.exports = {
   RequireRoleTeacher,
   RequireInClass,
   RequireHavePermissionInReview,
+  RequireRoleAdmin,
+  RequireNotBanned,
 };

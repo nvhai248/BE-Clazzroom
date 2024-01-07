@@ -6,6 +6,8 @@ const authenticate = require("../app/middlewares/authenticate");
 const {
   RequireRoleTeacher,
   RequireInClass,
+  RequireRoleAdmin,
+  RequireNotBanned,
 } = require("../app/middlewares/require");
 
 // grade ab=ng student list router
@@ -79,4 +81,12 @@ router.post("/join", authenticate, classRouter.joinClass);
 router.get("/:id", authenticate, RequireInClass, classRouter.findClass);
 router.post("/", authenticate, RequireRoleTeacher, classRouter.createNewClass);
 
+// admin
+router.get(
+  "/admin/allClass",
+  authenticate,
+  RequireRoleAdmin,
+  RequireNotBanned,
+  classRouter.getAllClasses
+);
 module.exports = router;

@@ -489,6 +489,12 @@ class ClassController {
         .send(errorInternalServer("Error occurred. Rollback performed!"));
     }
   };
+
+  // {GET} /api/classes/admin/allClass
+  getAllClasses = async (req, res) => {
+    const classes = await classStore.getAllClass();
+    res.status(200).send(simpleSuccessResponse(classes, "Successfully !"));
+  };
 }
 
 module.exports = new ClassController();

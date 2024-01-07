@@ -3,6 +3,10 @@ const mongooseHelper = require("../utils/mongoose.helper");
 const { errorCustom } = require("../views/error");
 
 class ClassStore {
+  getAllClass = async () => {
+    return mongooseHelper.multiMongooseToObject(await Class.find({}));
+  };
+
   findListClassById = async (ids) => {
     var classes = [];
 

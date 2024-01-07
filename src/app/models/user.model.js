@@ -16,6 +16,7 @@ const User = new Schema(
     address: { type: String },
     image: { type: String },
     role: { type: String },
+    status: { type: Boolean },
     is_verified: { type: Boolean },
     created_at: { type: String },
     updated_at: { type: String },

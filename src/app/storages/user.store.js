@@ -74,6 +74,10 @@ class userStore {
       await User.findOne({ student_id: studentId })
     );
   };
+
+  getUsers = async () => {
+    return mongooseHelper.multiMongooseToObject(await User.find({}));
+  };
 }
 
 module.exports = new userStore();
