@@ -9,6 +9,7 @@ const {
   errorCustom,
   errNoPermission,
   errorInternalServer,
+  errorNotFound,
 } = require("../views/error");
 const { simpleSuccessResponse } = require("../views/response_to_client");
 const gradeCompositionStore = require("../storages/gradeComposition.store");
@@ -31,7 +32,9 @@ class ClassController {
     let result = [];
     for (var i = 0; i < registrations.length; i++) {
       var _class = await classStore.findClassById(registrations[i].class_id);
+      if (!_class) continue;
       var owner = await userStore.findUserById(_class.owner);
+      if (!owner) continue;
       delete owner.password;
       _class.owner = owner;
       result.push(_class);
@@ -493,7 +496,65 @@ class ClassController {
   // {GET} /api/classes/admin/allClass
   getAllClasses = async (req, res) => {
     const classes = await classStore.getAllClass();
+
+    for (let i = 0; i < classes.length; i++) {
+      var owner = await userStore.findUserById(classes[i].owner);
+      if (!owner) continue;
+
+      delete owner.password;
+      classes[i].owner = owner;
+    }
+
     res.status(200).send(simpleSuccessResponse(classes, "Successfully !"));
+  };
+
+  // [PATCH] /api/classes/:id/grade-compositions/:grade_composition_id/finalized
+  finalizedGradeCompositions = async (req, res) => {
+    const grade_composition_id = req.params.grade_composition_id;
+    const class_id = req.params.id;
+    if (!grade_composition_id) {
+      return res
+        .status(400)
+        .send(errorBadRequest("Invalid grade composition id!"));
+    }
+    var gradeComposition = await gradeCompositionStore.findGradeCompositionById(
+      grade_composition_id
+    );
+
+    if (!gradeComposition) {
+      return res
+        .status(404)
+        .send(errorNotFound("grade composition not found!"));
+    }
+
+    if (gradeComposition.state == "finalized") {
+      return res
+        .status(400)
+        .send(errorCustom("grade composition already finalized!"));
+    }
+
+    await gradeCompositionStore.updateGradeCompositionWithSession(
+      grade_composition_id,
+      {
+        state: "finalized",
+      },
+      null
+    );
+
+    publishMessage("TeacherFinalizedGrade", {
+      class_id: class_id,
+      grade_composition_id: grade_composition_id,
+      grade_composition_name: gradeComposition.name,
+    });
+
+    res
+      .status(200)
+      .send(
+        simpleSuccessResponse(
+          { state: "finalized" },
+          "Success finalized grade composition!"
+        )
+      );
   };
 }
 

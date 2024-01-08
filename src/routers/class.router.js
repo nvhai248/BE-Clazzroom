@@ -43,6 +43,14 @@ router.put(
 );
 
 //grade composition routers
+router.patch(
+  "/:id/grade-compositions/:grade_composition_id/finalized",
+  authenticate,
+  RequireRoleTeacher,
+  RequireInClass,
+  classRouter.finalizedGradeCompositions
+);
+
 router.get(
   "/:id/grades",
   authenticate,

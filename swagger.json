@@ -10,7 +10,9 @@
     "/api/users/login": {
       "post": {
         "summary": "Sign in to the application",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "parameters": [
           {
             "name": "email",
@@ -41,7 +43,9 @@
     "/api/users/register": {
       "post": {
         "summary": "Sign up to the application",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "parameters": [
           {
             "name": "email",
@@ -77,7 +81,9 @@
     },
     "/api/users/logout": {
       "delete": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Log out from the application",
         "parameters": [
           {
@@ -98,7 +104,9 @@
     "/api/users/profile": {
       "get": {
         "summary": "Get user's profile",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "description": "Endpoint to retrieve the user's profile.",
         "parameters": [
           {
@@ -129,7 +137,9 @@
       },
       "patch": {
         "summary": "Update user's profile",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "description": "Endpoint for updating the user's profile.",
         "parameters": [
           {
@@ -215,9 +225,13 @@
     "/api/users/avatar": {
       "patch": {
         "summary": "Update user's avatar",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "description": "Endpoint for updating the user's avatar.",
-        "consumes": ["multipart/form-data"],
+        "consumes": [
+          "multipart/form-data"
+        ],
         "parameters": [
           {
             "name": "avatar",
@@ -260,7 +274,9 @@
     "/api/users/verify": {
       "post": {
         "summary": "Verify the user",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "description": "Endpoint to verify the user with a verification token.",
         "parameters": [
           {
@@ -306,7 +322,9 @@
     "/api/users/resend-verification": {
       "post": {
         "summary": "Resend verification via email",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "description": "Endpoint to resend the verification email to the user.",
         "responses": {
           "200": {
@@ -334,7 +352,9 @@
     "/api/users/send-email-renew-pw": {
       "post": {
         "summary": "Send email to renew password",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "description": "Endpoint to send an email for password renewal.",
         "requestBody": {
           "required": true,
@@ -349,7 +369,9 @@
                     "example": "example@example.com"
                   }
                 },
-                "required": ["email"]
+                "required": [
+                  "email"
+                ]
               }
             }
           }
@@ -380,7 +402,9 @@
     "/api/users/change-pw": {
       "patch": {
         "summary": "Change user password",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "description": "Endpoint to change user password.",
         "requestBody": {
           "required": true,
@@ -400,7 +424,10 @@
                     "example": "new_password"
                   }
                 },
-                "required": ["password", "newPassword"]
+                "required": [
+                  "password",
+                  "newPassword"
+                ]
               }
             }
           }
@@ -431,7 +458,9 @@
     "/api/users/resetPw": {
       "patch": {
         "summary": "Reset user password",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "description": "Endpoint to reset user password using a token.",
         "requestBody": {
           "required": true,
@@ -451,7 +480,10 @@
                     "example": "reset_token"
                   }
                 },
-                "required": ["newPassword", "token"]
+                "required": [
+                  "newPassword",
+                  "token"
+                ]
               }
             }
           }
@@ -485,7 +517,9 @@
     "/api/users/facebook-oauth": {
       "post": {
         "summary": "Login via Facebook OAuth",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "description": "Endpoint to authenticate users via Facebook OAuth.",
         "requestBody": {
           "required": true,
@@ -500,7 +534,9 @@
                     "example": "facebook_user_id"
                   }
                 },
-                "required": ["fb_id"]
+                "required": [
+                  "fb_id"
+                ]
               }
             }
           }
@@ -527,7 +563,9 @@
     "/api/users/google-oauth": {
       "post": {
         "summary": "Login via Google OAuth",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "description": "Endpoint to authenticate users via Google OAuth.",
         "requestBody": {
           "required": true,
@@ -542,7 +580,9 @@
                     "example": "google_user_id"
                   }
                 },
-                "required": ["gg_id"]
+                "required": [
+                  "gg_id"
+                ]
               }
             }
           }
@@ -569,7 +609,9 @@
     "/api/users/send-email-reset-pw": {
       "post": {
         "summary": "Send email for password reset",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "description": "Endpoint to send an email for password reset to the specified email address.",
         "parameters": {
           "required": true,
@@ -582,7 +624,9 @@
                 "example": "example@example.com"
               }
             },
-            "required": ["email"]
+            "required": [
+              "email"
+            ]
           }
         },
         "responses": {
@@ -611,7 +655,9 @@
     "api/classes/": {
       "post": {
         "summary": "Create a new class",
-        "tags": ["Classes"],
+        "tags": [
+          "Classes"
+        ],
         "parameters": [
           {
             "name": "class_name",
@@ -661,7 +707,9 @@
       },
       "get": {
         "summary": "Get class joined",
-        "tags": ["Classes"],
+        "tags": [
+          "Classes"
+        ],
         "parameters": [
           {
             "name": "Authorization",
@@ -685,7 +733,9 @@
     "api/classes/:id": {
       "get": {
         "summary": "Get class details by ID",
-        "tags": ["Classes"],
+        "tags": [
+          "Classes"
+        ],
         "parameters": [
           {
             "in": "path",
@@ -714,7 +764,9 @@
       },
       "patch": {
         "summary": "Update class profile by ID",
-        "tags": ["Classes"],
+        "tags": [
+          "Classes"
+        ],
         "parameters": [
           {
             "in": "path",
@@ -769,7 +821,9 @@
     "api/classes/join": {
       "post": {
         "summary": "Join a class by ID",
-        "tags": ["Classes"],
+        "tags": [
+          "Classes"
+        ],
         "parameters": [
           {
             "in": "formData",
@@ -797,7 +851,9 @@
     "api/classes/:id/request-send-invitation": {
       "post": {
         "summary": "Send invitation to join a class by ID",
-        "tags": ["Classes"],
+        "tags": [
+          "Classes"
+        ],
         "parameters": [
           {
             "in": "path",
@@ -835,7 +891,9 @@
     "api/classes/generate-class_code": {
       "get": {
         "summary": "Generate class code",
-        "tags": ["Classes"],
+        "tags": [
+          "Classes"
+        ],
         "responses": {
           "200": {
             "description": "Success generate class code",
@@ -880,7 +938,9 @@
     "api/classes/:id/out": {
       "delete": {
         "summary": "Send invitation to join a class by ID",
-        "tags": ["Classes"],
+        "tags": [
+          "Classes"
+        ],
         "parameters": [
           {
             "in": "path",
@@ -910,7 +970,9 @@
     },
     "api/classes/:id/grades": {
       "get": {
-        "tags": ["Grade composition"],
+        "tags": [
+          "Grade composition"
+        ],
         "summary": "Get list grade composition of class, you must be join in class",
         "parameters": [
           {
@@ -939,7 +1001,9 @@
         }
       },
       "put": {
-        "tags": ["Grade composition"],
+        "tags": [
+          "Grade composition"
+        ],
         "summary": "Create or update grade composition",
         "parameters": [
           {
@@ -980,7 +1044,9 @@
         }
       },
       "delete": {
-        "tags": ["Grade composition"],
+        "tags": [
+          "Grade composition"
+        ],
         "summary": "Delete list grade composition by list _id",
         "parameters": [
           {
@@ -1016,7 +1082,9 @@
     },
     "api/classes/:id/student-list": {
       "get": {
-        "tags": ["grades"],
+        "tags": [
+          "grades"
+        ],
         "summary": "Get list student (include grades) of class",
         "parameters": [
           {
@@ -1045,7 +1113,9 @@
         }
       },
       "post": {
-        "tags": ["grades"],
+        "tags": [
+          "grades"
+        ],
         "summary": "Upload list student (not include grades) of class",
         "parameters": [
           {
@@ -1085,7 +1155,9 @@
         }
       },
       "delete": {
-        "tags": ["grades"],
+        "tags": [
+          "grades"
+        ],
         "summary": "Delete list student of class",
         "parameters": [
           {
@@ -1126,7 +1198,9 @@
     },
     "api/classes/:id/student-list/:student_id": {
       "put": {
-        "tags": ["grades"],
+        "tags": [
+          "grades"
+        ],
         "summary": "Upload Grades of student in class",
         "parameters": [
           {
@@ -1170,7 +1244,9 @@
     },
     "api/reviews?class_id=***&state=***&sort=***": {
       "get": {
-        "tags": ["Reviews"],
+        "tags": [
+          "Reviews"
+        ],
         "description": "Get list review. Require auth. If student => get your list review. teacher => all review",
         "responses": {
           "200": {
@@ -1187,7 +1263,9 @@
     },
     "api/reviews": {
       "post": {
-        "tags": ["Reviews"],
+        "tags": [
+          "Reviews"
+        ],
         "description": "Create review",
         "parameters": [
           {
@@ -1225,7 +1303,9 @@
     },
     "api/reviews/:id": {
       "get": {
-        "tags": ["Reviews"],
+        "tags": [
+          "Reviews"
+        ],
         "description": "Get review",
         "responses": {
           "200": {
@@ -1240,7 +1320,9 @@
     "api/reviews/:id/comments": {
       "get": {
         "description": "Get list comment of review",
-        "tags": ["Comment"],
+        "tags": [
+          "Comment"
+        ],
         "responses": {
           "200": {
             "description": "Success",
@@ -1255,7 +1337,9 @@
       },
       "post": {
         "description": "Add new comment (only teacher and owner of review can used)",
-        "tags": ["Comment"],
+        "tags": [
+          "Comment"
+        ],
         "parameters": [
           {
             "name": "Authorization",
@@ -1280,7 +1364,9 @@
     "api/reviews/:id/final-decision": {
       "post": {
         "description": "Make final decision of review",
-        "tags": ["Comment"],
+        "tags": [
+          "Comment"
+        ],
         "parameters": [
           {
             "name": "Authorization",
@@ -1305,29 +1391,44 @@
     "/api/users/": {
       "get": {
         "description": "Get all user, Require Authentication and role Admin",
-        "tags": ["Admin Feature"]
+        "tags": [
+          "Admin Feature"
+        ]
+      }
+    },
+    "api/classes/:id/grade_compositions/:grade_composition_id/finalized": {
+      "patch": {
+        "description": "Finalized grade composition in class. Require teacher and in class",
+        "tags": [
+          "Grade composition"
+        ]
       }
     },
     "/api/users/:id/banned": {
       "patch": {
         "description": "Banned user, Require Authentication and role Admin",
-        "tags": ["Admin Feature"]
+        "tags": [
+          "Admin Feature"
+        ]
       }
     },
     "/api/users/:id/unbanned": {
       "patch": {
         "description": "Unbanned user, Require Authentication and role Admin",
-        "tags": ["Admin Feature"]
+        "tags": [
+          "Admin Feature"
+        ]
       }
     },
     "/api/classes": {
       "get": {
         "description": "Get all class, Require Authentication and role Admin",
-        "tags": ["Admin Feature"]
+        "tags": [
+          "Admin Feature"
+        ]
       }
     }
   },
-
   "definitions": {
     "Authentication": {
       "type": "object",

@@ -5,6 +5,9 @@ const {
   RunCreateCommentAndUpdateCurrentGradeInReview,
 } = require("./jobs/job_after_teacher_update_grade");
 const {
+  RunCreateNotificationsAfterTeacherFinalizedGradeComposition,
+} = require("./jobs/job_create_notification_after_finalized_grade_composition");
+const {
   RunCreateNotificationsAfterUserAddComment,
 } = require("./jobs/job_create_notification_after_user_add_cmt");
 const {
@@ -26,7 +29,10 @@ function startSubscribers() {
     RunCreateCommentAndUpdateCurrentGradeInReview
   );
 
-  subscribeToMessages("TeacherFinalizedGrade", handleMessage1);
+  subscribeToMessages(
+    "TeacherFinalizedGrade",
+    RunCreateNotificationsAfterTeacherFinalizedGradeComposition
+  );
 
   subscribeToMessages(
     "TeacherMakeFinalDecision",
@@ -42,11 +48,6 @@ function startSubscribers() {
     "StudentCreateReview",
     RunCreateNotificationAfterUserCreateReview
   );
-}
-
-function handleMessage1(message) {
-  console.log("Handling message for 'TeacherFinalizedGrade':", message);
-  // Process message for 'TeacherFinalizedGrade'
 }
 
 module.exports = { startSubscribers };
