@@ -556,6 +556,43 @@ class ClassController {
         )
       );
   };
+
+  // [GET] /api/classes/:id/student-list/mapped-account
+  getAccountsMappedByStudentIds = async (req, res) => {
+    const id = req.params.id;
+
+    const students = await studentStore.findStudentsByClassId(id);
+
+    let result = [];
+
+    for (let i = 0; i < students.length; i++) {
+      var user = await userStore.findUserByStudentId(students[i].student_id);
+      if (!user) continue;
+      delete user.password;
+      result.push(user);
+    }
+
+    if (!result) {
+      return res.status(404).send(errorNotFound("Can't find students!"));
+    }
+
+    res.status(200).send(simpleSuccessResponse(result, "Success!"));
+  };
+
+  // [GET] /api/classes/:id/student-list/mapped-account/:student_id
+  getAccountMappedByStudentId = async (req, res) => {
+    const student_id = req.params.student_id;
+
+    let result = await userStore.findUserByStudentId(student_id);
+
+    if (!result) {
+      return res.status(404).send(errorNotFound("Can't find student!"));
+    }
+
+    delete result.password;
+
+    res.status(200).send(simpleSuccessResponse(result, "Success!"));
+  };
 }
 
 module.exports = new ClassController();

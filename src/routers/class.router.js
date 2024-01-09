@@ -10,6 +10,20 @@ const {
   RequireNotBanned,
 } = require("../app/middlewares/require");
 
+router.get(
+  "/:id/student-list/mapped-account/:student_id",
+  authenticate,
+  RequireInClass,
+  classRouter.getAccountMappedByStudentId
+);
+
+router.get(
+  "/:id/student-list/mapped-account",
+  authenticate,
+  RequireInClass,
+  classRouter.getAccountsMappedByStudentIds
+);
+
 // grade ab=ng student list router
 router.get(
   "/:id/student-list",
