@@ -113,7 +113,23 @@ class USerController {
     const data = req.body;
 
     if (!userId || !data) {
-      res.status(400).send(errorBadRequest("Invalid profile!"));
+      return res.status(400).send(errorBadRequest("Invalid profile!"));
+    }
+
+    if (data.student_id) {
+      const currentUserProfile = await userStore.findUserById(userId);
+
+      if (currentUserProfile.student_id) {
+        delete data.student_id;
+      } else {
+        if (await userStore.findUserByStudentId(data.student_id)) {
+          return res
+            .status(400)
+            .send(
+              errorCustom(400, "Student Id already used by another account!")
+            );
+        }
+      }
     }
 
     await userStore.editProfile(userId, data);
