@@ -332,18 +332,47 @@ class ClassController {
   getStudentList = async (req, res) => {
     const classId = req.params.id;
 
-    var students = await studentStore.findStudentsByClassId(classId);
+    try {
+      const students = await studentStore.findStudentsByClassId(classId);
+      const gradeCompositions =
+        await gradeCompositionStore.findGradeCompositionsByClassId(classId);
 
-    for (var i = 0; i < students.length; i++) {
-      students[i].grades = await gradeStore.findGradesByStudentIdAndClassId(
-        students[i].student_id,
-        classId
-      );
+      for (let i = 0; i < students.length; i++) {
+        const studentGrades = await gradeStore.findGradesByStudentIdAndClassId(
+          students[i].student_id,
+          classId
+        );
+
+        const studentGradesMap = new Map(
+          studentGrades.map((grade) => [grade.grade_composition_id, grade])
+        );
+
+        var mergedGrades = [];
+        for (let i = 0; i < gradeCompositions.length; i++) {
+          if (studentGradesMap.get(gradeCompositions[i]._id.toString())) {
+            mergedGrades.push({
+              grade_composition_id: gradeCompositions[i]._id,
+              value: studentGradesMap.get(gradeCompositions[i]._id.toString())
+                .value,
+            });
+          } else {
+            mergedGrades.push({
+              grade_composition_id: gradeCompositions[i]._id,
+              value: null,
+            });
+          }
+        }
+
+        students[i].grades = mergedGrades;
+      }
+
+      res
+        .status(200)
+        .send(simpleSuccessResponse(students, "Successfully found students!"));
+    } catch (error) {
+      console.error("Error:", error);
+      res.status(500).send(simpleErrorResponse("Internal Server Error"));
     }
-
-    res
-      .status(200)
-      .send(simpleSuccessResponse(students, "Successfully found students!"));
   };
 
   // [POST] /api/classes/:id/student-list
