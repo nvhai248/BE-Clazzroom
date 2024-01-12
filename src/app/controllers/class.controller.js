@@ -556,7 +556,7 @@ class ClassController {
         .send(errorNotFound("grade composition not found!"));
     }
 
-    if (gradeComposition.state == "finalized") {
+    if (gradeComposition.state == "Finalized") {
       return res
         .status(400)
         .send(errorCustom("grade composition already finalized!"));
@@ -565,7 +565,7 @@ class ClassController {
     await gradeCompositionStore.updateGradeCompositionWithSession(
       grade_composition_id,
       {
-        state: "finalized",
+        state: "Finalized",
       },
       null
     );
@@ -580,7 +580,7 @@ class ClassController {
       .status(200)
       .send(
         simpleSuccessResponse(
-          { state: "finalized" },
+          { state: "Finalized" },
           "Success finalized grade composition!"
         )
       );
