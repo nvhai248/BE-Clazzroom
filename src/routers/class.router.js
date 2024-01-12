@@ -119,4 +119,18 @@ router.get(
   RequireNotBanned,
   classRouter.getAllClasses
 );
+
+router.patch(
+  "/:id/active",
+  RequireRoleAdmin,
+  RequireNotBanned,
+  classRouter.ActiveClass
+);
+
+router.patch(
+  "/:id/inactive",
+  RequireRoleAdmin,
+  RequireNotBanned,
+  classRouter.InactiveClass
+);
 module.exports = router;

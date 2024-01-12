@@ -686,6 +686,52 @@ class ClassController {
       res.status(400).send(errorBadRequest("Can't update grades!"));
     }
   };
+
+  // [PATCH] /classes/:id/active
+  ActiveClass = async (req, res) => {
+    const classId = req.params.id;
+
+    if (!classId) {
+      return res.status(400).send(errorBadRequest("Invalid class id!"));
+    }
+
+    const myClass = await classStore.findClassById(classId);
+
+    if (!myClass) {
+      return res.status(404).send(errorNotFound("Class!"));
+    }
+
+    if (myClass.status == "active") {
+      return res.status(400).send(errorBadRequest("Class already active!"));
+    }
+
+    await classStore.updateClass(classId, { status: "active" });
+    res.status(200).send(simpleSuccessResponse(null, "Success active class!"));
+  };
+
+  // [PATCH] /classes/:id/inactive
+  InactiveClass = async (req, res) => {
+    const classId = req.params.id;
+
+    if (!classId) {
+      return res.status(400).send(errorBadRequest("Invalid class id!"));
+    }
+
+    const myClass = await classStore.findClassById(classId);
+
+    if (!myClass) {
+      return res.status(404).send(errorNotFound("Class!"));
+    }
+
+    if (myClass.status == "inactive") {
+      return res.status(400).send(errorBadRequest("Class already inactive!"));
+    }
+
+    await classStore.updateClass(classId, { status: "inactive" });
+    res
+      .status(200)
+      .send(simpleSuccessResponse(null, "Success inactive class!"));
+  };
 }
 
 module.exports = new ClassController();
