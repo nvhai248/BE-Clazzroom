@@ -159,7 +159,7 @@ class ReviewController {
         data.grade_composition_id
       );
 
-    if (!checkGradeComposition || checkGradeComposition.state != "finalized") {
+    if (!checkGradeComposition || checkGradeComposition.state != "Finalized") {
       return res
         .status(400)
         .send(errorBadRequest("Grade composition not valid or not finalized!"));
