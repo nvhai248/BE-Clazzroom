@@ -520,7 +520,7 @@ class ClassController {
       res
         .status(200)
         .send(
-          simpleSuccessResponse(grades, "Success adding grades to student!")
+          simpleSuccessResponse({ _id: id, studentId: studentId, full_name: studentName, grades: grades, "Success adding grades to student!")
         );
     } catch (error) {
       await session.abortTransaction();
