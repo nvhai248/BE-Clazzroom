@@ -24,11 +24,18 @@ class notificationStore {
       to_user: userId,
     });
 
+    // Get the count of "new" notifications
+    const newNotificationsCount = await Notification.countDocuments({
+      to_user: userId,
+      state: "new",
+    });
+
     // Calculate total pages
     const total = Math.ceil(totalNotificationsCount / perPage);
 
     return {
       total: totalNotificationsCount,
+      new: newNotificationsCount, // Add the count of "new" notifications
       per_page: perPage,
       total: total,
       page: page,
