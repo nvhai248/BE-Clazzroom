@@ -629,6 +629,61 @@ class ClassController {
 
     res.status(200).send(simpleSuccessResponse(result, "Success!"));
   };
+
+  // [PUT]  /classes/:id/grades/upload
+  UploadGradesOfGradeComposition = async (req, res) => {
+    const classId = req.params.id;
+    const gradeCompositionId = req.body.grade_composition_id;
+    const grades = req.body.data;
+
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      for (let i = 0; i < grades.length; i++) {
+        await gradeStore.createOrUpdateGrade(
+          {
+            value: grades[i].value,
+            grade_composition_id: gradeCompositionId,
+            student_id: grades[i].student_id,
+            class_id: classId,
+          },
+          session
+        );
+
+        let review =
+          await gradeReviewStore.getReviewByClassIdStudentIdAndGradeCompId(
+            grades[i].student_id,
+            gradeCompositionId,
+            classId
+          );
+
+        if (review && review.current_grade != grades[i].value) {
+          publishMessage("TeacherUpdateGrade", {
+            new_grade: grades[i].value,
+            review_id: review._id,
+          });
+        }
+      }
+
+      await session.commitTransaction();
+      session.endSession();
+
+      res
+        .status(200)
+        .send(
+          simpleSuccessResponse(
+            grades,
+            "Success adding grades to student in a grade composition!"
+          )
+        );
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+
+      res.status(400).send(errorBadRequest("Can't update grades!"));
+    }
+  };
 }
 
 module.exports = new ClassController();

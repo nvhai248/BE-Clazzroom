@@ -25,6 +25,14 @@ router.get(
 );
 
 // grade ab=ng student list router
+router.put(
+  "/:id/grades/upload",
+  authenticate,
+  RequireRoleTeacher,
+  RequireInClass,
+  classRouter.UploadGradesOfGradeComposition
+);
+
 router.get(
   "/:id/student-list",
   authenticate,
