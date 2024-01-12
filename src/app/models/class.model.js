@@ -7,6 +7,7 @@ const Class = new Schema(
     class_name: { type: String },
     description: { type: String },
     class_code: { type: String },
+    status: { type: String },
     room: { type: String },
     topic: { type: String },
     student_count: { type: Number },

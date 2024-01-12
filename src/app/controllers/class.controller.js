@@ -53,6 +53,7 @@ class ClassController {
 
     // set default class
     data.owner = req.user.userId;
+    data.status = "active";
     data.student_count = 0;
     data.teacher_count = 1;
     data.class_code = generateRandomClassCode(8);
@@ -640,6 +641,7 @@ class ClassController {
     session.startTransaction();
 
     try {
+      ể;
       for (let i = 0; i < grades.length; i++) {
         await gradeStore.createOrUpdateGrade(
           {
