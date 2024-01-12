@@ -2,16 +2,12 @@ const Student = require("../models/student.model");
 const mongooseHelper = require("../utils/mongoose.helper");
 
 class StudentStore {
-  createOrUpdate = async (student, session) => {
-    try {
-      await Student.findOneAndUpdate(
-        { student_id: student.student_id, class_id: student.class_id },
-        { $setOnInsert: student },
-        { upsert: true, session }
-      );
-    } catch (error) {
-      throw new Error("Error creating or updating student!");
-    }
+  createOrUpdate = async (student) => {
+    return await Student.create([student]);
+  };
+
+  deleteAllStudentInClass = async (classId) => {
+    await Student.deleteMany({ class_id: classId });
   };
 
   findStudentsByClassId = async (classId) => {
