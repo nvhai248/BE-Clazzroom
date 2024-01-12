@@ -284,10 +284,11 @@ class ClassController {
           if (!gradeCompositions[i].state) {
             gradeCompositions[i].state = "In-progress";
           }
-          await gradeCompositionStore.createGradeCompositionWithSession(
-            gradeCompositions[i],
-            session
-          );
+          gradeCompositions[i] =
+            await gradeCompositionStore.createGradeCompositionWithSession(
+              gradeCompositions[i],
+              session
+            );
         } else {
           await gradeCompositionStore.updateGradeCompositionWithSession(
             gradeCompositions[i]._id,
@@ -308,9 +309,9 @@ class ClassController {
       session.endSession();
 
       res
-        .status(500)
+        .status(400)
         .send(
-          errorInternalServer(
+          errorBadRequest(
             "Error occurred. Rollback performed. Or one name of grade compositions existed!"
           )
         );
@@ -381,29 +382,20 @@ class ClassController {
     const classId = req.params.id;
     const students = req.body;
 
-    const session = await mongoose.startSession();
-    session.startTransaction();
+    console.log(classId);
 
-    try {
-      for (let i = 0; i < students.length; i++) {
-        students[i].class_id = classId;
-        await studentStore.createOrUpdate(students[i], session);
-      }
+    studentStore.deleteAllStudentInClass(classId);
+    gradeStore.deleteAllByClassId(classId);
+    gradeReviewStore.deleteAllByClassId(classId);
 
-      await session.commitTransaction();
-      session.endSession();
-
-      res
-        .status(200)
-        .send(simpleSuccessResponse(null, "Success create list student!"));
-    } catch (error) {
-      await session.abortTransaction();
-      session.endSession();
-
-      res
-        .status(400)
-        .send(errorBadRequest("Bad request. Or one student Id is existed!"));
+    for (let i = 0; i < students.length; i++) {
+      students[i].class_id = classId;
+      students[i] = await studentStore.createOrUpdate(students[i]);
     }
+
+    res
+      .status(200)
+      .send(simpleSuccessResponse(students, "Success create list student!"));
   };
 
   // [DELETE] /api/classes/:id/student-list
@@ -443,7 +435,7 @@ class ClassController {
     }
   };
 
-  // [PUT] /api/classes/:id/student-list/:id
+  // [PUT] /api/classes/:id/student-list/:student_object_id
   addGradesAndChangeStudentInfoToStudentInAClass = async (req, res) => {
     const classId = req.params.id;
     const studentId = req.body.student_id;
@@ -517,11 +509,17 @@ class ClassController {
       await session.commitTransaction();
       session.endSession();
 
-      res
-        .status(200)
-        .send(
-          simpleSuccessResponse({ _id: id, studentId: studentId, full_name: studentName, grades: grades, "Success adding grades to student!")
-        );
+      res.status(200).send(
+        simpleSuccessResponse(
+          {
+            _id: id,
+            studentId: studentId,
+            full_name: studentName,
+            grades: grades,
+          },
+          "Success adding grades to student!"
+        )
+      );
     } catch (error) {
       await session.abortTransaction();
       session.endSession();
@@ -641,7 +639,6 @@ class ClassController {
     session.startTransaction();
 
     try {
-      ể;
       for (let i = 0; i < grades.length; i++) {
         await gradeStore.createOrUpdateGrade(
           {

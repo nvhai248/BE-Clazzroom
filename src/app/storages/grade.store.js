@@ -60,6 +60,10 @@ class GradeStore {
   deleteAllByStudentIdAndClassId = async (studentId, classId) => {
     await Grade.deleteMany({ student_id: studentId, class_id: classId });
   };
+
+  deleteAllByClassId = async (classId) => {
+    await Grade.deleteMany({ class_id: classId });
+  };
 }
 
 module.exports = new GradeStore();

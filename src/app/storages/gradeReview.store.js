@@ -6,6 +6,10 @@ class GradeReviewStore {
     return await GradeReview.create([gradeReviewData]);
   };
 
+  deleteAllByClassId = async (classId) => {
+    await GradeReview.deleteMany({ class_id: classId });
+  };
+
   getListByStateAndClassId = async (userId, state, classId, sort) => {
     let query = {
       user_id: userId,

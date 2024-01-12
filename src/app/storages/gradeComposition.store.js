@@ -12,7 +12,7 @@ class GradeCompositionStore {
       throw new Error("Grade composition with the same name already exists.");
     }
 
-    await GradeComposition.create([gradeCompositionData], { session });
+    return await GradeComposition.create([gradeCompositionData], { session });
   };
 
   updateGradeCompositionWithSession = async (
