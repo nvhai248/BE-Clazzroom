@@ -400,12 +400,8 @@ class ClassController {
       session.endSession();
 
       res
-        .status(500)
-        .send(
-          errorInternalServer(
-            "Error occurred. Rollback performed. Or one student Id is existed!"
-          )
-        );
+        .status(400)
+        .send(errorBadRequest("Bad request. Or one student Id is existed!"));
     }
   };
 
@@ -442,33 +438,46 @@ class ClassController {
       await session.abortTransaction();
       session.endSession();
 
-      res.status(500).send(errorInternalServer("Cannot delete students"));
+      res.status(400).send(errorBadRequest("Cannot delete students"));
     }
   };
 
-  // [PUT] /api/classes/:id/student-list/:student_id
-  addGradesToStudentInAClass = async (req, res) => {
+  // [PUT] /api/classes/:id/student-list/:id
+  addGradesAndChangeStudentInfoToStudentInAClass = async (req, res) => {
     const classId = req.params.id;
-    const grades = req.body;
-    const studentId = req.params.student_id;
+    const studentId = req.body.student_id;
+    const studentName = req.body.full_name;
+    const grades = req.body.grades;
+    const id = req.params.student_object_id; // it's not student.student_id. It's student._id
 
-    if (!studentId) {
+    if (!id) {
       return res.status(404).send(errorBadRequest("Student Id is required!"));
     }
 
-    const student = await studentStore.findStudentByStudentIdAndClassId(
-      studentId,
-      classId
-    );
+    const student = await studentStore.findStudentById(id);
 
     if (!student) {
-      return res.status(404).send(errorBadRequest("Can not find student!"));
+      return res.status(400).send(errorBadRequest("Can not find student!"));
+    }
+
+    if (student.class_id != classId) {
+      return res.status(400).send(errorBadRequest("Student not in class!"));
     }
 
     const session = await mongoose.startSession();
     session.startTransaction();
 
     try {
+      await studentStore.updateStudentInfoById(
+        id,
+        { student_id: studentId, full_name: studentName },
+        session
+      );
+
+      if (studentId != student.student_id) {
+        gradeStore.deleteAllByStudentIdAndClassId(student.student_id, classId);
+      }
+
       for (let i = 0; i < grades.length; i++) {
         const gradeCompositionExists =
           await gradeCompositionStore.findGradeCompositionById(
@@ -516,9 +525,7 @@ class ClassController {
       await session.abortTransaction();
       session.endSession();
 
-      res
-        .status(500)
-        .send(errorInternalServer("Error occurred. Rollback performed!"));
+      res.status(400).send(errorBadRequest("Can't update grades!"));
     }
   };
 

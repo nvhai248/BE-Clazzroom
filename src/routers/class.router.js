@@ -49,11 +49,11 @@ router.delete(
 );
 
 router.put(
-  "/:id/student-list/:student_id",
+  "/:id/student-list/:student_object_id",
   authenticate,
   RequireInClass,
   RequireRoleTeacher,
-  classRouter.addGradesToStudentInAClass
+  classRouter.addGradesAndChangeStudentInfoToStudentInAClass
 );
 
 //grade composition routers
