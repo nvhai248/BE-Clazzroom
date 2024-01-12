@@ -4,11 +4,21 @@ const router = express.Router();
 const classRouter = require("../app/controllers/class.controller");
 const authenticate = require("../app/middlewares/authenticate");
 const {
+  RequireRoleStudent,
   RequireRoleTeacher,
   RequireInClass,
   RequireRoleAdmin,
   RequireNotBanned,
 } = require("../app/middlewares/require");
+
+// router
+router.get(
+  "/:id/grade-board",
+  authenticate,
+  RequireRoleStudent,
+  RequireInClass,
+  classRouter.getGradeBoardInAClass
+);
 
 router.get(
   "/:id/student-list/mapped-account/:student_id",

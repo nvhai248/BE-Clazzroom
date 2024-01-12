@@ -289,6 +289,7 @@ class ClassController {
               gradeCompositions[i],
               session
             );
+          gradeCompositions[i] = gradeCompositions[i][0];
         } else {
           await gradeCompositionStore.updateGradeCompositionWithSession(
             gradeCompositions[i]._id,
@@ -509,11 +510,17 @@ class ClassController {
       await session.commitTransaction();
       session.endSession();
 
-      res
-        .status(200)
-        .send(
-          simpleSuccessResponse({ _id: id, student_id: studentId, full_name: studentName, grades: grades }, "Success adding grades to student!")
-        );
+      res.status(200).send(
+        simpleSuccessResponse(
+          {
+            _id: id,
+            student_id: studentId,
+            full_name: studentName,
+            grades: grades,
+          },
+          "Success adding grades to student!"
+        )
+      );
     } catch (error) {
       await session.abortTransaction();
       session.endSession();
@@ -722,6 +729,51 @@ class ClassController {
     res
       .status(200)
       .send(simpleSuccessResponse(null, "Success inactive class!"));
+  };
+
+  // [GET] /classes/:id/grade-board
+  getGradeBoardInAClass = async (req, res) => {
+    const userId = req.user.userId;
+    const classId = req.params.id;
+
+    const user = await userStore.findUserById(userId);
+
+    if (!user) return res.status(404).send(errorNotFound("User!"));
+    if (!user.student_id)
+      return res
+        .status(400)
+        .send(errorCustom(400, "You need update your student id!"));
+
+    var gradeCompositions =
+      await gradeCompositionStore.findGradeCompositionsByClassId(classId);
+
+    var result = [];
+    for (let i = 0; i < gradeCompositions.length; i++) {
+      var grade =
+        await gradeStore.findGradeByStudentIdAndClassIdAndGradeCompositionId(
+          user.student_id,
+          classId,
+          gradeCompositions[i]._id
+        );
+
+      if (!grade) {
+        result.push({
+          _id: gradeCompositions[i]._id,
+          name: gradeCompositions[i].name,
+          scale: gradeCompositions[i].scale,
+          value: null,
+        });
+      } else {
+        result.push({
+          _id: gradeCompositions[i]._id,
+          name: gradeCompositions[i].name,
+          scale: gradeCompositions[i].scale,
+          value: grade.value,
+        });
+      }
+    }
+
+    res.status(200).send(simpleSuccessResponse(result, "Success!"));
   };
 }
 
