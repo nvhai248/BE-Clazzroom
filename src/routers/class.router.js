@@ -122,6 +122,7 @@ router.get(
 
 router.patch(
   "/:id/active",
+  authenticate,
   RequireRoleAdmin,
   RequireNotBanned,
   classRouter.ActiveClass
@@ -129,6 +130,7 @@ router.patch(
 
 router.patch(
   "/:id/inactive",
+  authenticate,
   RequireRoleAdmin,
   RequireNotBanned,
   classRouter.InactiveClass
