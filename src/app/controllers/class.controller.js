@@ -284,6 +284,9 @@ class ClassController {
           if (!gradeCompositions[i].state) {
             gradeCompositions[i].state = "In-progress";
           }
+
+          delete gradeCompositions[i]._id;
+
           gradeCompositions[i] =
             await gradeCompositionStore.createGradeCompositionWithSession(
               gradeCompositions[i],
