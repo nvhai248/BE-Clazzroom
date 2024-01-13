@@ -11,9 +11,13 @@ class GradeReviewStore {
   };
 
   getListByStateAndClassId = async (userId, state, classId, sort) => {
-    let query = {
-      user_id: userId,
-    };
+    let query = {};
+
+    if (userId) {
+      query = {
+        user_id: userId,
+      };
+    }
 
     if (state) {
       query.state = state;

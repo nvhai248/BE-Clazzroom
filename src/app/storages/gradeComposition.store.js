@@ -40,6 +40,12 @@ class GradeCompositionStore {
       await GradeComposition.find({ class_id: classId }).sort({ order: 1 })
     );
   };
+
+  findGradeCompositionByIdAndClassId = async (id, classId) => {
+    return mongooseHelper.mongoosesToObject(
+      await GradeComposition.findOne({ _id: id, class_id: classId })
+    );
+  };
 }
 
 module.exports = new GradeCompositionStore();

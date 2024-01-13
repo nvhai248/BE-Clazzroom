@@ -10,6 +10,7 @@ const userStore = require("../storages/user.store");
 const {
   errNoPermission,
   errorBadRequest,
+  errorInternalServer,
   errorCustom,
 } = require("../views/error");
 const { simpleSuccessResponse } = require("../views/response_to_client");
@@ -23,7 +24,7 @@ class ReviewController {
       const sort = req.query.sort;
 
       const reviews = await gradeReviewStore.getListByStateAndClassId(
-        req.user.userId,
+        req.user.role == "teacher" ? null : req.user.userId,
         state,
         classId,
         sort
@@ -48,6 +49,11 @@ class ReviewController {
             userStore.findUserByStudentId(review.student_id, { _id: 1 }),
           ]);
 
+        /* console.log("class:", reviewClass);
+        console.log("gradeComposition:", gradeComposition);
+        console.log("student:", student);
+        console.log("user:", user); */
+
         review.class = {
           _id: reviewClass._id,
           class_name: reviewClass.class_name,
@@ -70,7 +76,7 @@ class ReviewController {
 
       res.status(200).send(simpleSuccessResponse(reviews, "Successfully"));
     } catch (error) {
-      res.status(500).send(errorResponse("Internal Server Error"));
+      res.status(500).send(errorInternalServer("Internal Server Error"));
     }
   };
 
@@ -112,7 +118,7 @@ class ReviewController {
 
       res.status(200).send(simpleSuccessResponse(review, "Successfully!"));
     } catch (error) {
-      res.status(500).send(errorResponse("Internal Server Error"));
+      res.status(500).send(errorInternalServer("Internal Server Error"));
     }
   };
 
@@ -151,7 +157,11 @@ class ReviewController {
     ) {
       return res
         .status(403)
-        .send(errNoPermission("You do not have permission to access!"));
+        .send(
+          errNoPermission(
+            "You do not have permission to access (not in class)!"
+          )
+        );
     }
 
     // Check grade composition is finalized
@@ -177,7 +187,7 @@ class ReviewController {
     if (!grade) {
       return res
         .status(403)
-        .send(errNoPermission("You do not have permission to access!"));
+        .send(errNoPermission("You do not have permission to access (not have grade)!"));
     }
 
     data.state = "Pending";

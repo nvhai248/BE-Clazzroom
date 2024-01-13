@@ -477,8 +477,9 @@ class ClassController {
 
       for (let i = 0; i < grades.length; i++) {
         const gradeCompositionExists =
-          await gradeCompositionStore.findGradeCompositionById(
-            grades[i].grade_composition_id
+          await gradeCompositionStore.findGradeCompositionByIdAndClassId(
+            grades[i].grade_composition_id,
+            classId
           );
 
         if (!gradeCompositionExists) {
@@ -639,6 +640,18 @@ class ClassController {
     const gradeCompositionId = req.body.grade_composition_id;
     const grades = req.body.data;
 
+    const isGradeCompositionInClass =
+      await gradeCompositionStore.findGradeCompositionById(gradeCompositionId);
+
+    if (
+      !isGradeCompositionInClass ||
+      !isGradeCompositionInClass.class_id == classId
+    ) {
+      return res
+        .status(404)
+        .send(errorCustom(404, "Couldn't find grade composition!"));
+    }
+
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -762,6 +775,8 @@ class ClassController {
           classId,
           gradeCompositions[i]._id
         );
+
+      console.log(grade);
 
       if (
         !(await gradeReviewStore.getReviewByClassIdStudentIdAndGradeCompId(
