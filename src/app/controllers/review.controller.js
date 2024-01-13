@@ -211,6 +211,19 @@ class ReviewController {
     const id = req.params.id;
 
     let comments = await commentStore.findCommentsByReviewId(id);
+
+    for (let comment of comments) {
+      if (!comment.user_id) continue;
+
+      var user = await userStore.findUserById(comment.user_id);
+      if (!user) continue;
+      comment.user = {
+        _id: user._id,
+        full_name: user.full_name,
+        image: user.image || null,
+      };
+    }
+
     res.status(200).send(simpleSuccessResponse(comments, "Successfully!"));
   };
 
