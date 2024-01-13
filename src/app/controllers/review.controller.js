@@ -62,6 +62,7 @@ class ReviewController {
           student_id: student.student_id,
           account_id: user._id,
           full_name: student.full_name,
+          image: user.image,
         };
       });
 
