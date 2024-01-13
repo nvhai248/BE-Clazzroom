@@ -187,7 +187,11 @@ class ReviewController {
     if (!grade) {
       return res
         .status(403)
-        .send(errNoPermission("You do not have permission to access (not have grade)!"));
+        .send(
+          errNoPermission(
+            "You do not have permission to access (not have grade)!"
+          )
+        );
     }
 
     data.state = "Pending";
@@ -267,7 +271,10 @@ class ReviewController {
       finalGrade = body.new_grade;
     }
     gradeStore.updateById(review.grade_id, { value: finalGrade });
-    gradeReviewStore.updateReviewDataById(id, { current_grade: finalGrade });
+    gradeReviewStore.updateReviewDataById(id, {
+      current_grade: finalGrade,
+      state: "Finalized",
+    });
 
     publishMessage("TeacherMakeFinalDecision", {
       review_id: id,
