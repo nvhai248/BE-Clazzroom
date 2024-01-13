@@ -49,11 +49,6 @@ class ReviewController {
             userStore.findUserByStudentId(review.student_id, { _id: 1 }),
           ]);
 
-        /* console.log("class:", reviewClass);
-        console.log("gradeComposition:", gradeComposition);
-        console.log("student:", student);
-        console.log("user:", user); */
-
         review.class = {
           _id: reviewClass._id,
           class_name: reviewClass.class_name,

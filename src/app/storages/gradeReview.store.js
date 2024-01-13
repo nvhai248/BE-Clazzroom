@@ -30,9 +30,9 @@ class GradeReviewStore {
     let sortOptions = {};
 
     if (sort === "des_last_updated") {
-      sortOptions = { updated_at: -1 };
+      sortOptions = { updatedAt: -1 };
     } else if (sort === "asc_last_updated") {
-      sortOptions = { updated_at: 1 };
+      sortOptions = { updatedAt: 1 };
     }
 
     let gradeReviewsQuery = GradeReview.find(query);
