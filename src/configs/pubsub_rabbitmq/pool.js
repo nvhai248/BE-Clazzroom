@@ -4,6 +4,9 @@ const pool = require("generic-pool");
 // Create pool for connection
 const connectionPool = pool.createPool(
   {
+    // if you running in localhost the connection pool: amqp://localhost
+    // if you running in docker the connection pool: amqp://{{docker container}}/port
+    // amqp://rbmq-container:5672
     create: async () => await amqp.connect("amqp://localhost"),
     destroy: async (connection) => await connection.close(),
   },
