@@ -752,6 +752,10 @@ class ClassController {
 
     var result = [];
     for (let i = 0; i < gradeCompositions.length; i++) {
+      if (gradeCompositions[i].state != "Finalized") continue;
+
+      let isReviewed = true;
+
       var grade =
         await gradeStore.findGradeByStudentIdAndClassIdAndGradeCompositionId(
           user.student_id,
@@ -759,11 +763,22 @@ class ClassController {
           gradeCompositions[i]._id
         );
 
+      if (
+        !(await gradeReviewStore.getReviewByClassIdStudentIdAndGradeCompId(
+          user.student_id,
+          gradeCompositions[i]._id,
+          classId
+        ))
+      ) {
+        isReviewed = false;
+      }
+
       if (!grade) {
         result.push({
           _id: gradeCompositions[i]._id,
           name: gradeCompositions[i].name,
           scale: gradeCompositions[i].scale,
+          is_reviewed: isReviewed,
           value: null,
         });
       } else {
@@ -772,6 +787,7 @@ class ClassController {
           name: gradeCompositions[i].name,
           scale: gradeCompositions[i].scale,
           value: grade.value,
+          is_reviewed: isReviewed,
         });
       }
     }

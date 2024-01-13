@@ -29,6 +29,9 @@ const RunCreateNotificationsAfterUserAddComment = async (message) => {
 
   if (!myClass || !myClass.class_name) return;
 
+  // increase comment count
+  gradeReviewStore.increaseCommentCountById(message.message.review_id);
+
   // notifications to review owner
   notificationStore.create({
     content: `${user.full_name} added a new comment to the review on ${gradeComposition.name}`,

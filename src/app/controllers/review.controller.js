@@ -184,6 +184,7 @@ class ReviewController {
     data.current_grade = grade.value;
     data.user_id = userId;
     data.grade_id = grade._id;
+    data.comment_count = 0;
 
     if (
       await gradeReviewStore.getReviewByClassIdStudentIdAndGradeCompId(

@@ -63,6 +63,10 @@ class GradeReviewStore {
       })
     );
   };
+
+  increaseCommentCountById = async (id) => {
+    await GradeReview.updateOne({ _id, id }, { $inc: { comment_count: 1 } });
+  };
 }
 
 module.exports = new GradeReviewStore();
