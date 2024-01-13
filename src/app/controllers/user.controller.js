@@ -9,6 +9,7 @@ const {
   errorBadRequest,
   errorInternalServer,
   errorUnauthorized,
+  errNoPermission,
 } = require("../views/error");
 const { uploadToS3, isImage, getImageInfo } = require("../utils/image.helper");
 const imageStore = require("../storages/image.store");
@@ -20,6 +21,7 @@ const {
 } = require("../../configs/nodemailer");
 const { generatePassword } = require("../utils/users.helper");
 const blackTokenStore = require("../storages/blackToken.store");
+const { publishMessage } = require("../../configs/pubsub_rabbitmq/publisher");
 
 class USerController {
   // [GET] api/users/profile
@@ -29,6 +31,8 @@ class USerController {
     if (!user) {
       res.status(404).send(errorNotFound("User"));
     }
+
+    publishMessage("test", { data: "OK!" });
 
     res.status(200).send(simpleSuccessResponse(user, "ok"));
   }
@@ -53,6 +57,7 @@ class USerController {
     data.password = data.password
       ? (data.password = hasher.encode(data.password))
       : "";
+    data.status = true;
     await userStore.createUser(data);
 
     const newUser = await userStore.findUserByEmail(data.email);
@@ -89,7 +94,7 @@ class USerController {
 
     tokenStore.createToken({
       token: token,
-      userId: data._id,
+      userId: user._id,
     });
 
     res
@@ -108,7 +113,23 @@ class USerController {
     const data = req.body;
 
     if (!userId || !data) {
-      res.status(400).send(errorBadRequest("Invalid profile!"));
+      return res.status(400).send(errorBadRequest("Invalid profile!"));
+    }
+
+    if (data.student_id) {
+      const currentUserProfile = await userStore.findUserById(userId);
+
+      if (currentUserProfile.student_id) {
+        delete data.student_id;
+      } else {
+        if (await userStore.findUserByStudentId(data.student_id)) {
+          return res
+            .status(400)
+            .send(
+              errorCustom(400, "Student Id already used by another account!")
+            );
+        }
+      }
     }
 
     await userStore.editProfile(userId, data);
@@ -157,7 +178,7 @@ class USerController {
       imageInfo.created_by = userId;
 
       imageStore.create(imageInfo);
-      await userStore.editProfile(userId, { image: imageInfo });
+      await userStore.editProfile(userId, { image: imageInfo.url });
       var user = await userStore.findUserById(userId);
       res
         .status(200)
@@ -391,6 +412,60 @@ class USerController {
       .catch((error) => {
         res.status(403).send(errorCustom(403, "Can't send  email!"));
       });
+  };
+
+  // {GET} /api/users
+  getAllUser = async (req, res) => {
+    var users = await userStore.getUsers();
+    res.status(200).send(simpleSuccessResponse(users, "Successfully!"));
+  };
+
+  // {PATCH} /api/users/:id/banned
+  bannedAccount = async (req, res) => {
+    const accountId = req.params.id;
+
+    if (!accountId) {
+      return res.status(400).send(errorBadRequest("Invalid account id!"));
+    }
+
+    var account = await userStore.findUserById(accountId);
+
+    if (account.role == "admin") {
+      return res.status(403).send(errNoPermission("You can't ban admin!"));
+    }
+
+    if (account.status == false) {
+      return res.status(400).send(errorBadRequest("Account already banned!"));
+    }
+
+    userStore.editProfile(accountId, { status: false });
+    res
+      .status(200)
+      .send(simpleSuccessResponse(null, `Account ${accountId} banned!`));
+  };
+
+  // {PATCH} /api/users/:id/unbanned
+  unbannedAccount = async (req, res) => {
+    const accountId = req.params.id;
+
+    if (!accountId) {
+      return res.status(400).send(errorBadRequest("Invalid account id!"));
+    }
+
+    var account = await userStore.findUserById(accountId);
+
+    if (account.role == "admin") {
+      return res.status(403).send(errNoPermission("You can't unbanned admin!"));
+    }
+
+    if (account.status == true) {
+      return res.status(400).send(errorBadRequest("Account already unbanned!"));
+    }
+
+    userStore.editProfile(accountId, { status: true });
+    res
+      .status(200)
+      .send(simpleSuccessResponse(null, `Account ${accountId} unbanned!`));
   };
 }
 

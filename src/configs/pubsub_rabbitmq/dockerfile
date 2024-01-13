@@ -1,0 +1,13 @@
+# Sử dụng RabbitMQ official image từ Docker Hub
+FROM rabbitmq:3-management
+
+# Thiết lập thông tin xác thực mặc định cho RabbitMQ
+ENV RABBITMQ_DEFAULT_USER=guest
+ENV RABBITMQ_DEFAULT_PASS=guest
+RUN rabbitmq-plugins enable --offline rabbitmq_management
+
+# Expose các cổng cần thiết (5672 cho AMQP, 15672 cho RabbitMQ Management UI)
+EXPOSE 5672 15672
+
+# CMD là lệnh chạy khi container được khởi động
+CMD ["rabbitmq-server"]

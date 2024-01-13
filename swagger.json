@@ -967,6 +967,466 @@
           }
         }
       }
+    },
+    "api/classes/:id/grades": {
+      "get": {
+        "tags": [
+          "Grade composition"
+        ],
+        "summary": "Get list grade composition of class, you must be join in class",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "Class Id",
+            "in": "path",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success get grade compositions",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/gradeComposition"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Grade composition"
+        ],
+        "summary": "Create or update grade composition",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "Class Id",
+            "in": "path",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "grade compositions",
+            "description": "If item have _id => update else => create",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/gradeComposition"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success update or create grade compositions",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/gradeComposition"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Grade composition"
+        ],
+        "summary": "Delete list grade composition by list _id",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "Class Id",
+            "in": "path",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "grade compositions",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/gradeCompositionIds"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success delete grade compositions"
+          }
+        }
+      }
+    },
+    "api/classes/:id/student-list": {
+      "get": {
+        "tags": [
+          "grades"
+        ],
+        "summary": "Get list student (include grades) of class",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "Class Id",
+            "in": "path",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success get grade compositions",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/student"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "grades"
+        ],
+        "summary": "Upload list student (not include grades) of class",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "Class Id",
+            "in": "path",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "Students",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/studentInput"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success get upload students",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/studentInput"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "grades"
+        ],
+        "summary": "Delete list student of class",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "Class Id",
+            "in": "path",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "Students",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "student_id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success delete students"
+          }
+        }
+      }
+    },
+    "api/classes/:id/student-list/:student_id": {
+      "put": {
+        "tags": [
+          "grades"
+        ],
+        "summary": "Upload Grades of student in class",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "Class Id",
+            "in": "path",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "Grades",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "grade_composition_id": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success get upload grades"
+          }
+        }
+      }
+    },
+    "api/reviews?class_id=***&state=***&sort=***": {
+      "get": {
+        "tags": [
+          "Reviews"
+        ],
+        "description": "Get list review. Require auth. If student => get your list review. teacher => all review",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Review"
+              }
+            }
+          }
+        }
+      }
+    },
+    "api/reviews": {
+      "post": {
+        "tags": [
+          "Reviews"
+        ],
+        "description": "Create review",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "class_id",
+            "in": "formData",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "grade_composition_id",
+            "in": "formData",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "explanation",
+            "in": "formData",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "expectation_grade",
+            "in": "formData",
+            "type": "number",
+            "required": true
+          }
+        ]
+      }
+    },
+    "api/reviews/:id": {
+      "get": {
+        "tags": [
+          "Reviews"
+        ],
+        "description": "Get review",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Review"
+            }
+          }
+        }
+      }
+    },
+    "api/reviews/:id/comments": {
+      "get": {
+        "description": "Get list comment of review",
+        "tags": [
+          "Comment"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Comment"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Add new comment (only teacher and owner of review can used)",
+        "tags": [
+          "Comment"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "content",
+            "in": "formData",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "api/reviews/:id/final-decision": {
+      "post": {
+        "description": "Make final decision of review",
+        "tags": [
+          "Comment"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "new_grade",
+            "in": "formData",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/users/": {
+      "get": {
+        "description": "Get all user, Require Authentication and role Admin",
+        "tags": [
+          "Admin Feature"
+        ]
+      }
+    },
+    "api/classes/:id/grade_compositions/:grade_composition_id/finalized": {
+      "patch": {
+        "description": "Finalized grade composition in class. Require teacher and in class",
+        "tags": [
+          "Grade composition"
+        ]
+      }
+    },
+    "/api/users/:id/banned": {
+      "patch": {
+        "description": "Banned user, Require Authentication and role Admin",
+        "tags": [
+          "Admin Feature"
+        ]
+      }
+    },
+    "/api/users/:id/unbanned": {
+      "patch": {
+        "description": "Unbanned user, Require Authentication and role Admin",
+        "tags": [
+          "Admin Feature"
+        ]
+      }
+    },
+    "/api/classes": {
+      "get": {
+        "description": "Get all class, Require Authentication and role Admin",
+        "tags": [
+          "Admin Feature"
+        ]
+      }
     }
   },
   "definitions": {
@@ -1117,6 +1577,169 @@
       "properties": {
         "email": {
           "type": "string"
+        }
+      }
+    },
+    "gradeComposition": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "order": {
+          "type": "number"
+        },
+        "scale": {
+          "type": "number"
+        },
+        "state": {
+          "type": "string"
+        },
+        "class_id": {
+          "type": "string"
+        }
+      }
+    },
+    "gradeCompositionIds": {
+      "type": "object",
+      "properties": {
+        "grade_composition_id": {
+          "type": "string"
+        }
+      }
+    },
+    "student": {
+      "type": "object",
+      "properties": {
+        "class_id": {
+          "type": "string"
+        },
+        "student_id": {
+          "type": "string"
+        },
+        "full_name": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "grades": {
+          "type": "array",
+          "items": {}
+        }
+      }
+    },
+    "studentInput": {
+      "type": "object",
+      "properties": {
+        "student_id": {
+          "type": "string"
+        },
+        "full_name": {
+          "type": "string"
+        }
+      }
+    },
+    "Review": {
+      "type": "object",
+      "properties": {
+        "_id": {
+          "type": "object",
+          "properties": {
+            "$oid": {
+              "type": "string"
+            }
+          }
+        },
+        "name": {
+          "type": "string"
+        },
+        "order": {
+          "type": "integer"
+        },
+        "scale": {
+          "type": "integer"
+        },
+        "state": {
+          "type": "string"
+        },
+        "class_id": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "object",
+          "properties": {
+            "$date": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        },
+        "updatedAt": {
+          "type": "object",
+          "properties": {
+            "$date": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        },
+        "__v": {
+          "type": "integer"
+        }
+      }
+    },
+    "Comment": {
+      "type": "object",
+      "properties": {
+        "_id": {
+          "type": "object",
+          "properties": {
+            "$oid": {
+              "type": "string"
+            }
+          }
+        },
+        "type": {
+          "type": "string"
+        },
+        "final_grade": {
+          "type": "number"
+        },
+        "content": {
+          "type": "string"
+        },
+        "user_id": {
+          "type": "string"
+        },
+        "review_id": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "object",
+          "properties": {
+            "$date": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        },
+        "updatedAt": {
+          "type": "object",
+          "properties": {
+            "$date": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        },
+        "__v": {
+          "type": "integer"
         }
       }
     }
