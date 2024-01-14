@@ -9,7 +9,7 @@ const Comment = new Schema(
     type: { type: String },
     content: { type: String },
     user_id: { type: String },
-    review_id: { type: Number },
+    review_id: { type: String },
     created_at: { type: String },
     updated_at: { type: String },
   },

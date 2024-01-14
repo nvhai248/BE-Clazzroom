@@ -23,200 +23,224 @@ const { publishMessage } = require("../../configs/pubsub_rabbitmq/publisher");
 class ClassController {
   //[GET] /classes
   getListClasses = async (req, res) => {
-    var user = req.user;
+    try {
+      var user = req.user;
 
-    let registrations = await classRegistrationStore.findListClassIdByUserId(
-      user.userId
-    );
+      let registrations = await classRegistrationStore.findListClassIdByUserId(
+        user.userId
+      );
 
-    let result = [];
-    for (var i = 0; i < registrations.length; i++) {
-      var _class = await classStore.findClassById(registrations[i].class_id);
-      if (!_class) continue;
-      var owner = await userStore.findUserById(_class.owner);
-      if (!owner) continue;
-      delete owner.password;
-      _class.owner = owner;
-      result.push(_class);
+      let result = [];
+      for (var i = 0; i < registrations.length; i++) {
+        var _class = await classStore.findClassById(registrations[i].class_id);
+        if (!_class) continue;
+        var owner = await userStore.findUserById(_class.owner);
+        if (!owner) continue;
+        delete owner.password;
+        _class.owner = owner;
+        result.push(_class);
+      }
+
+      res.status(200).send(simpleSuccessResponse(result, "Success!"));
+    } catch (error) {
+      res.status(500).send(errorInternalServer("Internal Server!"));
     }
-
-    res.status(200).send(simpleSuccessResponse(result, "Success!"));
   };
 
   //[POST] /classes/
   createNewClass = async (req, res) => {
-    var data = req.body;
+    try {
+      var data = req.body;
 
-    if (!data) {
-      return res.status(400).send(errorBadRequest("Invalid request!"));
+      if (!data) {
+        return res.status(400).send(errorBadRequest("Invalid request!"));
+      }
+
+      // set default class
+      data.owner = req.user.userId;
+      data.status = "active";
+      data.student_count = 0;
+      data.teacher_count = 1;
+      data.class_code = generateRandomClassCode(8);
+
+      var newClass = await classStore.createClass(data);
+      classRegistrationStore.createClassRegistration({
+        class_id: newClass._id,
+        user_id: newClass.owner,
+        role: "teacher",
+      });
+
+      res
+        .status(200)
+        .send(
+          simpleSuccessResponse(newClass, "Successfully create a new class!")
+        );
+    } catch (error) {
+      res.status(500).send(errorInternalServer("Internal Server!"));
     }
-
-    // set default class
-    data.owner = req.user.userId;
-    data.status = "active";
-    data.student_count = 0;
-    data.teacher_count = 1;
-    data.class_code = generateRandomClassCode(8);
-
-    var newClass = await classStore.createClass(data);
-    classRegistrationStore.createClassRegistration({
-      class_id: newClass._id,
-      user_id: newClass.owner,
-      role: "teacher",
-    });
-
-    res
-      .status(200)
-      .send(
-        simpleSuccessResponse(newClass, "Successfully create a new class!")
-      );
   };
 
   // [GET] /classes/:id
   findClass = async (req, res) => {
-    var id = req.params.id;
+    try {
+      var id = req.params.id;
 
-    var myClass = await classStore.findClassById(id);
+      var myClass = await classStore.findClassById(id);
 
-    const joinedUsers =
-      await classRegistrationStore.findListStudentIdInClassByClassId(id);
+      const joinedUsers =
+        await classRegistrationStore.findListStudentIdInClassByClassId(id);
 
-    var teachers = [];
-    var students = [];
+      var teachers = [];
+      var students = [];
 
-    // add members in class
-    for (let i = 0; i < joinedUsers.length; i++) {
-      if (joinedUsers[i].role === "teacher") {
-        const teacherInfo = await userStore.findUserById(
-          joinedUsers[i].user_id
-        );
+      // add members in class
+      for (let i = 0; i < joinedUsers.length; i++) {
+        if (joinedUsers[i].role === "teacher") {
+          const teacherInfo = await userStore.findUserById(
+            joinedUsers[i].user_id
+          );
 
-        if (!teacherInfo) continue;
+          if (!teacherInfo) continue;
 
-        teachers.push({
-          _id: teacherInfo._id,
-          full_name: teacherInfo.full_name,
-          email: teacherInfo.email,
-          image: teacherInfo.image,
-        });
-      } else if (joinedUsers[i].role === "student") {
-        const studentInfo = await userStore.findUserById(
-          joinedUsers[i].user_id
-        );
+          teachers.push({
+            _id: teacherInfo._id,
+            full_name: teacherInfo.full_name,
+            email: teacherInfo.email,
+            image: teacherInfo.image,
+          });
+        } else if (joinedUsers[i].role === "student") {
+          const studentInfo = await userStore.findUserById(
+            joinedUsers[i].user_id
+          );
 
-        if (!studentInfo) continue;
+          if (!studentInfo) continue;
 
-        students.push({
-          _id: studentInfo._id,
-          full_name: studentInfo.full_name,
-          email: studentInfo.email,
-          image: studentInfo.image,
-          student_id: joinedUsers[i].student_id,
-        });
+          students.push({
+            _id: studentInfo._id,
+            full_name: studentInfo.full_name,
+            email: studentInfo.email,
+            image: studentInfo.image,
+            student_id: joinedUsers[i].student_id,
+          });
+        }
       }
+
+      myClass.teachers = teachers;
+      myClass.students = students;
+
+      let owner = await userStore.findUserById(myClass.owner);
+      delete owner.password;
+      myClass.owner = owner;
+      res.status(200).send(simpleSuccessResponse(myClass, "success!"));
+    } catch (error) {
+      res.status(500).send(errorInternalServer("Internal Server!"));
     }
-
-    myClass.teachers = teachers;
-    myClass.students = students;
-
-    let owner = await userStore.findUserById(myClass.owner);
-    delete owner.password;
-    myClass.owner = owner;
-    res.status(200).send(simpleSuccessResponse(myClass, "success!"));
   };
 
   // [POST] /classes/join
   joinClass = async (req, res) => {
-    const user = req.user;
-    const { class_code } = req.body;
+    try {
+      const user = req.user;
+      const { class_code } = req.body;
 
-    if (!class_code) {
-      return res.status(400).send(errorBadRequest("Invalid request"));
+      if (!class_code) {
+        return res.status(400).send(errorBadRequest("Invalid request"));
+      }
+
+      const myClass = await classStore.findClassByClassCode(class_code);
+      if (!myClass) {
+        return res.status(404).send(errorCustom(404, "Class not found!"));
+      }
+
+      const isJoined = await classRegistrationStore.findByClassIdAndUserId(
+        myClass._id,
+        user.userId
+      );
+
+      if (isJoined) {
+        return res
+          .status(400)
+          .send(errorCustom(400, "You are already a member of class!"));
+      }
+
+      classRegistrationStore.createClassRegistration({
+        class_id: myClass._id,
+        user_id: user.userId,
+        role: user.role,
+      });
+
+      if (user.role === "student") {
+        classStore.increaseStudentCount(myClass._id);
+      } else if (user.role === "teacher") {
+        classStore.increaseTeacherCount(myClass._id);
+      }
+
+      res
+        .status(200)
+        .send(simpleSuccessResponse(null, "Successfully joined class!"));
+    } catch (error) {
+      res.status(500).send(errorInternalServer("Internal Server!"));
     }
-
-    const myClass = await classStore.findClassByClassCode(class_code);
-    if (!myClass) {
-      return res.status(404).send(errorCustom(404, "Class not found!"));
-    }
-
-    const isJoined = await classRegistrationStore.findByClassIdAndUserId(
-      myClass._id,
-      user.userId
-    );
-
-    if (isJoined) {
-      return res
-        .status(400)
-        .send(errorCustom(400, "You are already a member of class!"));
-    }
-
-    classRegistrationStore.createClassRegistration({
-      class_id: myClass._id,
-      user_id: user.userId,
-      role: user.role,
-    });
-
-    if (user.role === "student") {
-      classStore.increaseStudentCount(myClass._id);
-    } else if (user.role === "teacher") {
-      classStore.increaseTeacherCount(myClass._id);
-    }
-
-    res
-      .status(200)
-      .send(simpleSuccessResponse(null, "Successfully joined class!"));
   };
 
   // [POST] /classes/:id/request-send-invitation
   requestSendInvitation = async (req, res) => {
-    const user = req.user;
+    try {
+      const user = req.user;
 
-    const emails = req.body;
+      const emails = req.body;
 
-    const id = req.params.id;
+      const id = req.params.id;
 
-    if (!emails || !id) {
-      return res.status(400).send(errorBadRequest("Invalid request"));
+      if (!emails || !id) {
+        return res.status(400).send(errorBadRequest("Invalid request"));
+      }
+
+      const myClass = await classStore.findClassById(id);
+      if (!myClass) {
+        return res.status(404).send(errorCustom(404, "Class not found!"));
+      }
+
+      const userInfo = await userStore.findUserById(user.userId);
+
+      if (!userInfo) {
+        return res.status(400).send(errorCustom(404, "User not found!"));
+      }
+
+      for (let i = 0; i < emails.length; i++) {
+        sendInvitationToTheClass(userInfo, emails[i].email, myClass);
+      }
+
+      res
+        .status(200)
+        .send(simpleSuccessResponse(null, "Send Invitation Success!"));
+    } catch (error) {
+      res.status(500).send(errorInternalServer("Internal Server!"));
     }
-
-    const myClass = await classStore.findClassById(id);
-    if (!myClass) {
-      return res.status(404).send(errorCustom(404, "Class not found!"));
-    }
-
-    const userInfo = await userStore.findUserById(user.userId);
-
-    if (!userInfo) {
-      return res.status(400).send(errorCustom(404, "User not found!"));
-    }
-
-    for (let i = 0; i < emails.length; i++) {
-      sendInvitationToTheClass(userInfo, emails[i].email, myClass);
-    }
-
-    res
-      .status(200)
-      .send(simpleSuccessResponse(null, "Send Invitation Success!"));
   };
 
   // [PATCH] /classes/:id
   editClassProfile = async (req, res) => {
-    const newData = req.body;
+    try {
+      const newData = req.body;
 
-    const id = req.params.id;
+      const id = req.params.id;
 
-    if (!newData || !id) {
-      return res.status(400).send(errorBadRequest("Invalid request"));
+      if (!newData || !id) {
+        return res.status(400).send(errorBadRequest("Invalid request"));
+      }
+
+      const myClass = await classStore.findClassById(id);
+      if (!myClass) {
+        return res.status(404).send(errorCustom(404, "Class not found!"));
+      }
+
+      classStore.updateClass(id, newData);
+
+      res.status(200).send(simpleSuccessResponse(newData, "Success!"));
+    } catch (error) {
+      res.status(500).send(errorInternalServer("Internal Server!"));
     }
-
-    const myClass = await classStore.findClassById(id);
-    if (!myClass) {
-      return res.status(404).send(errorCustom(404, "Class not found!"));
-    }
-
-    classStore.updateClass(id, newData);
-
-    res.status(200).send(simpleSuccessResponse(newData, "Success!"));
   };
 
   // [GET] /classes/generate-class_code
@@ -233,105 +257,121 @@ class ClassController {
 
   // [DELETE] /classes/:id/out
   outOfClass = async (req, res, next) => {
-    var id = req.params.id;
+    try {
+      var id = req.params.id;
 
-    var user = req.user;
-    if (!id) {
-      return res.status(400).send(errorBadRequest("Invalid request"));
+      var user = req.user;
+      if (!id) {
+        return res.status(400).send(errorBadRequest("Invalid request"));
+      }
+
+      let _class = await classStore.findClassById(id);
+
+      if (_class.owner == user.userId) {
+        return res
+          .status(400)
+          .send(
+            errorCustom(
+              400,
+              "You can't out the class, because you are the owner of class!"
+            )
+          );
+      }
+
+      classRegistrationStore.deleteRegistration(id, user.userId);
+      res
+        .status(200)
+        .send(simpleSuccessResponse(null, "Successfully out of class!"));
+    } catch (error) {
+      res.status(500).send(errorInternalServer("Internal Server!"));
     }
-
-    let _class = await classStore.findClassById(id);
-
-    if (_class.owner == user.userId) {
-      return res
-        .status(400)
-        .send(
-          errorCustom(
-            400,
-            "You can't out the class, because you are the owner of class!"
-          )
-        );
-    }
-
-    classRegistrationStore.deleteRegistration(id, user.userId);
-    res
-      .status(200)
-      .send(simpleSuccessResponse(null, "Successfully out of class!"));
   };
 
   //[GET] /api/classes/:id/grades
   getGradeCompositions = async (req, res) => {
-    const classId = req.params.id;
+    try {
+      const classId = req.params.id;
 
-    const gradeCompos =
-      await gradeCompositionStore.findGradeCompositionsByClassId(classId);
-    res.status(200).send(simpleSuccessResponse(gradeCompos, "Success!"));
+      const gradeCompos =
+        await gradeCompositionStore.findGradeCompositionsByClassId(classId);
+      res.status(200).send(simpleSuccessResponse(gradeCompos, "Success!"));
+    } catch (error) {
+      res.status(500).send(errorInternalServer("Internal Server!"));
+    }
   };
 
   // [PUT] /api/classes/:id/grades
   updateGradeCompositions = async (req, res) => {
-    const classId = req.params.id;
-    const gradeCompositions = req.body;
-
-    const session = await mongoose.startSession();
-    session.startTransaction();
-
     try {
-      for (let i = 0; i < gradeCompositions.length; i++) {
-        gradeCompositions[i].class_id = classId;
+      const classId = req.params.id;
+      const gradeCompositions = req.body;
 
-        if (!gradeCompositions[i]._id) {
-          if (!gradeCompositions[i].state) {
-            gradeCompositions[i].state = "In-progress";
-          }
+      const session = await mongoose.startSession();
+      session.startTransaction();
 
-          delete gradeCompositions[i]._id;
+      try {
+        for (let i = 0; i < gradeCompositions.length; i++) {
+          gradeCompositions[i].class_id = classId;
 
-          gradeCompositions[i] =
-            await gradeCompositionStore.createGradeCompositionWithSession(
+          if (!gradeCompositions[i]._id) {
+            if (!gradeCompositions[i].state) {
+              gradeCompositions[i].state = "In-progress";
+            }
+
+            delete gradeCompositions[i]._id;
+
+            gradeCompositions[i] =
+              await gradeCompositionStore.createGradeCompositionWithSession(
+                gradeCompositions[i],
+                session
+              );
+            gradeCompositions[i] = gradeCompositions[i][0];
+          } else {
+            await gradeCompositionStore.updateGradeCompositionWithSession(
+              gradeCompositions[i]._id,
               gradeCompositions[i],
               session
             );
-          gradeCompositions[i] = gradeCompositions[i][0];
-        } else {
-          await gradeCompositionStore.updateGradeCompositionWithSession(
-            gradeCompositions[i]._id,
-            gradeCompositions[i],
-            session
-          );
+          }
         }
+
+        await session.commitTransaction();
+        session.endSession();
+
+        res
+          .status(200)
+          .send(simpleSuccessResponse(gradeCompositions, "Success!"));
+      } catch (error) {
+        await session.abortTransaction();
+        session.endSession();
+
+        res
+          .status(400)
+          .send(
+            errorBadRequest(
+              "Error occurred. Rollback performed. Or one name of grade compositions existed!"
+            )
+          );
       }
-
-      await session.commitTransaction();
-      session.endSession();
-
-      res
-        .status(200)
-        .send(simpleSuccessResponse(gradeCompositions, "Success!"));
     } catch (error) {
-      await session.abortTransaction();
-      session.endSession();
-
-      res
-        .status(400)
-        .send(
-          errorBadRequest(
-            "Error occurred. Rollback performed. Or one name of grade compositions existed!"
-          )
-        );
+      res.status(500).send(errorInternalServer("Internal Server!"));
     }
   };
 
   //[DELETE] /api/classes/:id/grades
   deleteGradeCompositions = async (req, res) => {
-    const gradesCompoIds = req.body;
-    for (let i = 0; i < gradesCompoIds.length; i++) {
-      await gradeCompositionStore.deleteGradeComposition(
-        gradesCompoIds[i].grade_composition_id
-      );
-    }
+    try {
+      const gradesCompoIds = req.body;
+      for (let i = 0; i < gradesCompoIds.length; i++) {
+        await gradeCompositionStore.deleteGradeComposition(
+          gradesCompoIds[i].grade_composition_id
+        );
+      }
 
-    res.status(200).send(simpleSuccessResponse(null, "Success deleted!"));
+      res.status(200).send(simpleSuccessResponse(null, "Success deleted!"));
+    } catch (error) {
+      res.status(500).send(errorInternalServer("Internal Server!"));
+    }
   };
 
   // [GET] /api/classes/:id/student-list
@@ -383,23 +423,27 @@ class ClassController {
 
   // [POST] /api/classes/:id/student-list
   createListStudent = async (req, res) => {
-    const classId = req.params.id;
-    const students = req.body;
+    try {
+      const classId = req.params.id;
+      const students = req.body;
 
-    console.log(classId);
+      console.log(classId);
 
-    studentStore.deleteAllStudentInClass(classId);
-    gradeStore.deleteAllByClassId(classId);
-    gradeReviewStore.deleteAllByClassId(classId);
+      studentStore.deleteAllStudentInClass(classId);
+      gradeStore.deleteAllByClassId(classId);
+      gradeReviewStore.deleteAllByClassId(classId);
 
-    for (let i = 0; i < students.length; i++) {
-      students[i].class_id = classId;
-      students[i] = await studentStore.createOrUpdate(students[i]);
+      for (let i = 0; i < students.length; i++) {
+        students[i].class_id = classId;
+        students[i] = await studentStore.createOrUpdate(students[i]);
+      }
+
+      res
+        .status(200)
+        .send(simpleSuccessResponse(students, "Success create list student!"));
+    } catch (error) {
+      res.status(500).send(errorInternalServer("Internal Server!"));
     }
-
-    res
-      .status(200)
-      .send(simpleSuccessResponse(students, "Success create list student!"));
   };
 
   // [DELETE] /api/classes/:id/student-list
@@ -535,103 +579,120 @@ class ClassController {
 
   // {GET} /api/classes/admin/allClass
   getAllClasses = async (req, res) => {
-    const classes = await classStore.getAllClass();
+    try {
+      const classes = await classStore.getAllClass();
 
-    for (let i = 0; i < classes.length; i++) {
-      var owner = await userStore.findUserById(classes[i].owner);
-      if (!owner) continue;
+      for (let i = 0; i < classes.length; i++) {
+        var owner = await userStore.findUserById(classes[i].owner);
+        if (!owner) continue;
 
-      delete owner.password;
-      classes[i].owner = owner;
+        delete owner.password;
+        classes[i].owner = owner;
+      }
+
+      res.status(200).send(simpleSuccessResponse(classes, "Successfully !"));
+    } catch (error) {
+      res.status(500).send(errorInternalServer("Internal Server!"));
     }
-
-    res.status(200).send(simpleSuccessResponse(classes, "Successfully !"));
   };
 
   // [PATCH] /api/classes/:id/grade-compositions/:grade_composition_id/finalized
   finalizedGradeCompositions = async (req, res) => {
-    const grade_composition_id = req.params.grade_composition_id;
-    const class_id = req.params.id;
-    if (!grade_composition_id) {
-      return res
-        .status(400)
-        .send(errorBadRequest("Invalid grade composition id!"));
-    }
-    var gradeComposition = await gradeCompositionStore.findGradeCompositionById(
-      grade_composition_id
-    );
+    try {
+      const grade_composition_id = req.params.grade_composition_id;
+      const class_id = req.params.id;
+      if (!grade_composition_id) {
+        return res
+          .status(400)
+          .send(errorBadRequest("Invalid grade composition id!"));
+      }
+      var gradeComposition =
+        await gradeCompositionStore.findGradeCompositionById(
+          grade_composition_id
+        );
 
-    if (!gradeComposition) {
-      return res
-        .status(404)
-        .send(errorNotFound("grade composition not found!"));
-    }
+      if (!gradeComposition) {
+        return res
+          .status(404)
+          .send(errorNotFound("grade composition not found!"));
+      }
 
-    if (gradeComposition.state == "Finalized") {
-      return res
-        .status(400)
-        .send(errorCustom("grade composition already finalized!"));
-    }
+      if (gradeComposition.state == "Finalized") {
+        return res
+          .status(400)
+          .send(errorCustom("grade composition already finalized!"));
+      }
 
-    await gradeCompositionStore.updateGradeCompositionWithSession(
-      grade_composition_id,
-      {
-        state: "Finalized",
-      },
-      null
-    );
-
-    publishMessage("TeacherFinalizedGrade", {
-      class_id: class_id,
-      grade_composition_id: grade_composition_id,
-      grade_composition_name: gradeComposition.name,
-    });
-
-    res
-      .status(200)
-      .send(
-        simpleSuccessResponse(
-          { state: "Finalized" },
-          "Success finalized grade composition!"
-        )
+      await gradeCompositionStore.updateGradeCompositionWithSession(
+        grade_composition_id,
+        {
+          state: "Finalized",
+        },
+        null
       );
+
+      publishMessage("TeacherFinalizedGrade", {
+        class_id: class_id,
+        grade_composition_id: grade_composition_id,
+        grade_composition_name: gradeComposition.name,
+      });
+
+      res
+        .status(200)
+        .send(
+          simpleSuccessResponse(
+            { state: "Finalized" },
+            "Success finalized grade composition!"
+          )
+        );
+    } catch (error) {
+      res.status(500).send(errorInternalServer("Internal Server!"));
+    }
   };
 
   // [GET] /api/classes/:id/student-list/mapped-account
   getAccountsMappedByStudentIds = async (req, res) => {
-    const id = req.params.id;
+    try {
+      const id = req.params.id;
 
-    const students = await studentStore.findStudentsByClassId(id);
+      const students = await studentStore.findStudentsByClassId(id);
 
-    let result = [];
+      let result = [];
 
-    for (let i = 0; i < students.length; i++) {
-      var user = await userStore.findUserByStudentId(students[i].student_id);
-      if (!user) continue;
-      delete user.password;
-      result.push(user);
+      for (let i = 0; i < students.length; i++) {
+        var user = await userStore.findUserByStudentId(students[i].student_id);
+        if (!user) continue;
+        delete user.password;
+        result.push(user);
+      }
+
+      if (!result) {
+        return res.status(404).send(errorNotFound("Can't find students!"));
+      }
+
+      res.status(200).send(simpleSuccessResponse(result, "Success!"));
+    } catch (error) {
+      res.status(500).send(errorInternalServer("Internal Server!"));
     }
-
-    if (!result) {
-      return res.status(404).send(errorNotFound("Can't find students!"));
-    }
-
-    res.status(200).send(simpleSuccessResponse(result, "Success!"));
   };
 
   // [GET] /api/classes/:id/student-list/mapped-account/:student_id
   getAccountMappedByStudentId = async (req, res) => {
-    const student_id = req.params.student_id;
+    try {
+      const student_id = req.params.student_id;
 
-    let result = await userStore.findUserByStudentId(student_id);
+      let result = await userStore.findUserByStudentId(student_id);
 
-    if (!result) {
-      return res.status(404).send(errorNotFound("Can't find student!"));
+      if (!result) {
+        return res.status(404).send(errorNotFound("Can't find student!"));
+      }
+
+      delete result.password;
+
+      res.status(200).send(simpleSuccessResponse(result, "Success!"));
+    } catch (error) {
+      res.status(500).send(errorInternalServer("Internal Server!"));
     }
-
-    delete result.password;
-
-    res.status(200).send(simpleSuccessResponse(result, "Success!"));
   };
 
   // [PUT]  /classes/:id/grades/upload
@@ -703,111 +764,125 @@ class ClassController {
 
   // [PATCH] /classes/:id/active
   ActiveClass = async (req, res) => {
-    const classId = req.params.id;
+    try {
+      const classId = req.params.id;
 
-    if (!classId) {
-      return res.status(400).send(errorBadRequest("Invalid class id!"));
+      if (!classId) {
+        return res.status(400).send(errorBadRequest("Invalid class id!"));
+      }
+
+      const myClass = await classStore.findClassById(classId);
+
+      if (!myClass) {
+        return res.status(404).send(errorNotFound("Class!"));
+      }
+
+      if (myClass.status == "active") {
+        return res.status(400).send(errorBadRequest("Class already active!"));
+      }
+
+      await classStore.updateClass(classId, { status: "active" });
+      res
+        .status(200)
+        .send(simpleSuccessResponse(null, "Success active class!"));
+    } catch (error) {
+      res.status(500).send(errorInternalServer("Internal Server!"));
     }
-
-    const myClass = await classStore.findClassById(classId);
-
-    if (!myClass) {
-      return res.status(404).send(errorNotFound("Class!"));
-    }
-
-    if (myClass.status == "active") {
-      return res.status(400).send(errorBadRequest("Class already active!"));
-    }
-
-    await classStore.updateClass(classId, { status: "active" });
-    res.status(200).send(simpleSuccessResponse(null, "Success active class!"));
   };
 
   // [PATCH] /classes/:id/inactive
   InactiveClass = async (req, res) => {
-    const classId = req.params.id;
+    try {
+      const classId = req.params.id;
 
-    if (!classId) {
-      return res.status(400).send(errorBadRequest("Invalid class id!"));
+      if (!classId) {
+        return res.status(400).send(errorBadRequest("Invalid class id!"));
+      }
+
+      const myClass = await classStore.findClassById(classId);
+
+      if (!myClass) {
+        return res.status(404).send(errorNotFound("Class!"));
+      }
+
+      if (myClass.status == "inactive") {
+        return res.status(400).send(errorBadRequest("Class already inactive!"));
+      }
+
+      await classStore.updateClass(classId, { status: "inactive" });
+      res
+        .status(200)
+        .send(simpleSuccessResponse(null, "Success inactive class!"));
+    } catch (error) {
+      res.status(500).send(errorInternalServer("Internal Server!"));
     }
-
-    const myClass = await classStore.findClassById(classId);
-
-    if (!myClass) {
-      return res.status(404).send(errorNotFound("Class!"));
-    }
-
-    if (myClass.status == "inactive") {
-      return res.status(400).send(errorBadRequest("Class already inactive!"));
-    }
-
-    await classStore.updateClass(classId, { status: "inactive" });
-    res
-      .status(200)
-      .send(simpleSuccessResponse(null, "Success inactive class!"));
   };
 
   // [GET] /classes/:id/grade-board
   getGradeBoardInAClass = async (req, res) => {
-    const userId = req.user.userId;
-    const classId = req.params.id;
+    try {
+      const userId = req.user.userId;
+      const classId = req.params.id;
 
-    const user = await userStore.findUserById(userId);
+      const user = await userStore.findUserById(userId);
 
-    if (!user) return res.status(404).send(errorNotFound("User!"));
-    if (!user.student_id)
-      return res
-        .status(400)
-        .send(errorCustom(400, "You need update your student id!"));
+      if (!user) return res.status(404).send(errorNotFound("User!"));
+      if (!user.student_id)
+        return res
+          .status(400)
+          .send(errorCustom(400, "You need update your student id!"));
 
-    var gradeCompositions =
-      await gradeCompositionStore.findGradeCompositionsByClassId(classId);
+      var gradeCompositions =
+        await gradeCompositionStore.findGradeCompositionsByClassId(classId);
 
-    var result = [];
-    for (let i = 0; i < gradeCompositions.length; i++) {
-      if (gradeCompositions[i].state != "Finalized") continue;
+      var result = [];
+      for (let i = 0; i < gradeCompositions.length; i++) {
+        if (gradeCompositions[i].state != "Finalized") continue;
 
-      let isReviewed = true;
+        let isReviewed = true;
 
-      var grade =
-        await gradeStore.findGradeByStudentIdAndClassIdAndGradeCompositionId(
-          user.student_id,
-          classId,
-          gradeCompositions[i]._id
-        );
+        var grade =
+          await gradeStore.findGradeByStudentIdAndClassIdAndGradeCompositionId(
+            user.student_id,
+            classId,
+            gradeCompositions[i]._id
+          );
 
-      console.log(grade);
+        console.log(grade);
 
-      if (
-        !(await gradeReviewStore.getReviewByClassIdStudentIdAndGradeCompId(
-          user.student_id,
-          gradeCompositions[i]._id,
-          classId
-        ))
-      ) {
-        isReviewed = false;
+        if (
+          !(await gradeReviewStore.getReviewByClassIdStudentIdAndGradeCompId(
+            user.student_id,
+            gradeCompositions[i]._id,
+            classId
+          ))
+        ) {
+          isReviewed = false;
+        }
+
+        if (!grade) {
+          result.push({
+            _id: gradeCompositions[i]._id,
+            name: gradeCompositions[i].name,
+            scale: gradeCompositions[i].scale,
+            is_reviewed: isReviewed,
+            value: null,
+          });
+        } else {
+          result.push({
+            _id: gradeCompositions[i]._id,
+            name: gradeCompositions[i].name,
+            scale: gradeCompositions[i].scale,
+            value: grade.value,
+            is_reviewed: isReviewed,
+          });
+        }
       }
 
-      if (!grade) {
-        result.push({
-          _id: gradeCompositions[i]._id,
-          name: gradeCompositions[i].name,
-          scale: gradeCompositions[i].scale,
-          is_reviewed: isReviewed,
-          value: null,
-        });
-      } else {
-        result.push({
-          _id: gradeCompositions[i]._id,
-          name: gradeCompositions[i].name,
-          scale: gradeCompositions[i].scale,
-          value: grade.value,
-          is_reviewed: isReviewed,
-        });
-      }
+      res.status(200).send(simpleSuccessResponse(result, "Success!"));
+    } catch (error) {
+      res.status(500).send(errorInternalServer("Internal Server!"));
     }
-
-    res.status(200).send(simpleSuccessResponse(result, "Success!"));
   };
 }
 

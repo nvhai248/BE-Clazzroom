@@ -9,7 +9,7 @@ class CommentStore {
   };
 
   createNewComment = async (cmtData) => {
-    Comment.create([cmtData]);
+    await Comment.create([cmtData]);
   };
 }
 

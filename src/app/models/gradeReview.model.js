@@ -13,7 +13,7 @@ const GradeReview = new Schema(
     current_grade: { type: Number },
     expectation_grade: { type: Number },
     explanation: { type: String },
-    comment_count: { type: String },
+    comment_count: { type: Number },
     created_at: { type: String },
     updated_at: { type: String },
   },

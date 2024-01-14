@@ -85,6 +85,7 @@ function setup(app) {
             image: profile.photos[0].value,
             password: "",
             is_verified: true,
+            status: true,
           });
 
           return done(null, {
