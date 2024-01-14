@@ -8,6 +8,7 @@ const {
   errorCustom,
   errorNotFound,
   errorUnauthorized,
+  errorInternalServer,
 } = require("../views/error");
 
 function RequireRoleStudent(req, res, next) {
