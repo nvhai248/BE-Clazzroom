@@ -119,203 +119,224 @@ class ReviewController {
 
   // [POST] /reviews
   createReview = async (req, res) => {
-    const data = req.body;
-    const userId = req.user.userId;
+    try {
+      const data = req.body;
+      const userId = req.user.userId;
 
-    if (
-      !data ||
-      !data.class_id ||
-      !data.grade_composition_id ||
-      !data.explanation ||
-      !data.expectation_grade
-    ) {
-      return res
-        .status(400)
-        .send(errorBadRequest("Please provide a valid review data!"));
-    }
+      if (
+        !data ||
+        !data.class_id ||
+        !data.grade_composition_id ||
+        !data.explanation ||
+        !data.expectation_grade
+      ) {
+        return res
+          .status(400)
+          .send(errorBadRequest("Please provide a valid review data!"));
+      }
 
-    // find Student
-    const student = await userStore.findUserById(userId);
+      // find Student
+      const student = await userStore.findUserById(userId);
 
-    if (!student.student_id) {
-      return res
-        .status(403)
-        .send(errNoPermission("You need update your student_id first!"));
-    }
+      if (!student.student_id) {
+        return res
+          .status(403)
+          .send(errNoPermission("You need update your student_id first!"));
+      }
 
-    // Check student is in class ???
-    if (
-      !(await classRegistrationStore.findByClassIdAndUserId(
-        data.class_id,
-        userId
-      ))
-    ) {
-      return res
-        .status(403)
-        .send(
-          errNoPermission(
-            "You do not have permission to access (not in class)!"
-          )
+      // Check student is in class ???
+      if (
+        !(await classRegistrationStore.findByClassIdAndUserId(
+          data.class_id,
+          userId
+        ))
+      ) {
+        return res
+          .status(403)
+          .send(
+            errNoPermission(
+              "You do not have permission to access (not in class)!"
+            )
+          );
+      }
+
+      // Check grade composition is finalized
+      var checkGradeComposition =
+        await gradeCompositionStore.findGradeCompositionById(
+          data.grade_composition_id
         );
-    }
 
-    // Check grade composition is finalized
-    var checkGradeComposition =
-      await gradeCompositionStore.findGradeCompositionById(
-        data.grade_composition_id
-      );
+      if (
+        !checkGradeComposition ||
+        checkGradeComposition.state != "Finalized"
+      ) {
+        return res
+          .status(400)
+          .send(
+            errorBadRequest("Grade composition not valid or not finalized!")
+          );
+      }
 
-    if (!checkGradeComposition || checkGradeComposition.state != "Finalized") {
-      return res
-        .status(400)
-        .send(errorBadRequest("Grade composition not valid or not finalized!"));
-    }
-
-    // Check is owner of grade
-    var grade =
-      await gradeStore.findGradeByStudentIdAndClassIdAndGradeCompositionId(
-        student.student_id,
-        data.class_id,
-        data.grade_composition_id
-      );
-
-    if (!grade) {
-      return res
-        .status(403)
-        .send(
-          errNoPermission(
-            "You do not have permission to access (not have grade)!"
-          )
+      // Check is owner of grade
+      var grade =
+        await gradeStore.findGradeByStudentIdAndClassIdAndGradeCompositionId(
+          student.student_id,
+          data.class_id,
+          data.grade_composition_id
         );
+
+      if (!grade) {
+        return res
+          .status(403)
+          .send(
+            errNoPermission(
+              "You do not have permission to access (not have grade)!"
+            )
+          );
+      }
+
+      data.state = "Pending";
+      data.student_id = student.student_id;
+      data.current_grade = grade.value;
+      data.user_id = userId;
+      data.grade_id = grade._id;
+      data.comment_count = 0;
+
+      if (
+        await gradeReviewStore.getReviewByClassIdStudentIdAndGradeCompId(
+          data.student_id,
+          data.grade_composition_id,
+          data.class_id
+        )
+      ) {
+        return res
+          .status(404)
+          .send(errorCustom("You are already create review this grade!"));
+      }
+
+      const newReview = await gradeReviewStore.create(data);
+
+      publishMessage("StudentCreateReview", newReview[0]);
+
+      res.status(200).send(simpleSuccessResponse(data, "Successfully!"));
+    } catch (error) {
+      res.status(500).send(errorInternalServer("Internal Server!"));
     }
-
-    data.state = "Pending";
-    data.student_id = student.student_id;
-    data.current_grade = grade.value;
-    data.user_id = userId;
-    data.grade_id = grade._id;
-    data.comment_count = 0;
-
-    if (
-      await gradeReviewStore.getReviewByClassIdStudentIdAndGradeCompId(
-        data.student_id,
-        data.grade_composition_id,
-        data.class_id
-      )
-    ) {
-      return res
-        .status(404)
-        .send(errorCustom("You are already create review this grade!"));
-    }
-
-    const newReview = await gradeReviewStore.create(data);
-
-    publishMessage("StudentCreateReview", newReview[0]);
-
-    res.status(200).send(simpleSuccessResponse(data, "Successfully!"));
   };
 
   // [GET] /api/reviews/:id/comments
   getListComments = async (req, res) => {
-    const id = req.params.id;
+    try {
+      const id = req.params.id;
 
-    let comments = await commentStore.findCommentsByReviewId(id);
+      let comments = await commentStore.findCommentsByReviewId(id);
 
-    for (let comment of comments) {
-      if (!comment.user_id) continue;
+      for (let comment of comments) {
+        if (!comment.user_id) continue;
 
-      var user = await userStore.findUserById(comment.user_id);
-      if (!user) continue;
-      comment.user = {
-        _id: user._id,
-        full_name: user.full_name,
-        image: user.image || null,
-      };
+        var user = await userStore.findUserById(comment.user_id);
+        if (!user) continue;
+        comment.user = {
+          _id: user._id,
+          full_name: user.full_name,
+          image: user.image || null,
+        };
+      }
+
+      res.status(200).send(simpleSuccessResponse(comments, "Successfully!"));
+    } catch (error) {
+      res.status(500).send(errorInternalServer("Internal Server!"));
     }
-
-    res.status(200).send(simpleSuccessResponse(comments, "Successfully!"));
   };
 
   // [POST] /api/reviews/:id/final-decision
   makeFinalDecision = async (req, res) => {
-    const id = req.params.id;
-    const body = req.body;
+    try {
+      const id = req.params.id;
+      const body = req.body;
 
-    if (!id || !body) {
-      res.status(400).send(errorBadRequest("Invalid id!"));
+      if (!id || !body) {
+        res.status(400).send(errorBadRequest("Invalid id!"));
+      }
+
+      let finalGrade = 0;
+      const review = await gradeReviewStore.getReviewById(id);
+
+      // check teacher is in class
+      if (
+        !(await classRegistrationStore.findByClassIdAndUserId(
+          review.class_id,
+          req.user.userId
+        ))
+      ) {
+        return res
+          .status(403)
+          .send(errNoPermission("You do not have permission to access!"));
+      }
+
+      if (!body.new_grade) {
+        finalGrade = review.current_grade;
+      } else {
+        finalGrade = body.new_grade;
+      }
+      gradeStore.updateById(review.grade_id, { value: finalGrade });
+      gradeReviewStore.updateReviewDataById(id, {
+        current_grade: finalGrade,
+        state: "Finalized",
+      });
+
+      publishMessage("TeacherMakeFinalDecision", {
+        review_id: id,
+        final_grade: finalGrade,
+        review_owner: review.user_id,
+        class_id: review.class_id,
+        user_id: req.user.userId,
+        grade_composition_id: review.grade_composition_id,
+      });
+
+      res
+        .status(200)
+        .send(
+          simpleSuccessResponse(
+            { final_grade: finalGrade },
+            "Successfully final review!"
+          )
+        );
+    } catch (error) {
+      res.status(500).send(errorInternalServer("Internal Server!"));
     }
-
-    let finalGrade = 0;
-    const review = await gradeReviewStore.getReviewById(id);
-
-    // check teacher is in class
-    if (
-      !(await classRegistrationStore.findByClassIdAndUserId(
-        review.class_id,
-        req.user.userId
-      ))
-    ) {
-      return res
-        .status(403)
-        .send(errNoPermission("You do not have permission to access!"));
-    }
-
-    if (!body.new_grade) {
-      finalGrade = review.current_grade;
-    } else {
-      finalGrade = body.new_grade;
-    }
-    gradeStore.updateById(review.grade_id, { value: finalGrade });
-    gradeReviewStore.updateReviewDataById(id, {
-      current_grade: finalGrade,
-      state: "Finalized",
-    });
-
-    publishMessage("TeacherMakeFinalDecision", {
-      review_id: id,
-      final_grade: finalGrade,
-      review_owner: review.user_id,
-      class_id: review.class_id,
-      user_id: req.user.userId,
-      grade_composition_id: review.grade_composition_id,
-    });
-
-    res
-      .status(200)
-      .send(
-        simpleSuccessResponse(
-          { final_grade: finalGrade },
-          "Successfully final review!"
-        )
-      );
   };
 
   // [POST] /api/reviews/:id/comments
   addCmt = async (req, res) => {
-    const id = req.params.id;
-    const body = req.body;
+    try {
+      const id = req.params.id;
+      const body = req.body;
 
-    if (!id || !body) {
-      res.status(400).send(errorBadRequest("Invalid id!"));
+      if (!id || !body) {
+        res.status(400).send(errorBadRequest("Invalid id!"));
+      }
+
+      const data = {
+        type: "comment",
+        user_id: req.user.userId,
+        review_id: id,
+        content: body.content,
+      };
+
+      commentStore.createNewComment(data);
+
+      publishMessage("UserAddComment", {
+        review_id: id,
+        user_id: req.user.userId,
+      });
+
+      res
+        .status(200)
+        .send(simpleSuccessResponse(data, "Successfully final review!"));
+    } catch (error) {
+      res.status(500).send(errorInternalServer("Internal Server!"));
     }
-
-    const data = {
-      type: "comment",
-      user_id: req.user.userId,
-      review_id: id,
-      content: body.content,
-    };
-
-    commentStore.createNewComment(data);
-
-    publishMessage("UserAddComment", {
-      review_id: id,
-      user_id: req.user.userId,
-    });
-
-    res
-      .status(200)
-      .send(simpleSuccessResponse(data, "Successfully final review!"));
   };
 }
 
