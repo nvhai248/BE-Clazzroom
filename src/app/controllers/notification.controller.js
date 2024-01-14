@@ -1,5 +1,5 @@
 const notificationStore = require("../storages/notification.store");
-const { errorBadRequest } = require("../views/error");
+const { errorBadRequest, errorInternalServer } = require("../views/error");
 const { simpleSuccessResponse } = require("../views/response_to_client");
 
 class NotificationController {
