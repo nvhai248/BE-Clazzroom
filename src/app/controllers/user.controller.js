@@ -196,7 +196,7 @@ class USerController {
       let check = await uploadToS3(imageInfo, buffer);
       if (check) {
         // return image information to Client
-        imageInfo.url = process.env.S3Domain + "/" + imageInfo.url;
+        imageInfo.url = "https://" + process.env.S3Domain + "/" + imageInfo.url;
         var userId = req.user.userId;
         imageInfo.created_by = userId;
 
