@@ -33,22 +33,27 @@ const RunCreateNotificationsAfterUserAddComment = async (message) => {
   gradeReviewStore.increaseCommentCountById(message.message.review_id);
 
   // notifications to review owner
-  notificationStore.create({
-    content: `${user.full_name} added a new comment to the review on ${gradeComposition.name}`,
-    state: "new",
-    class: `${myClass.class_name}`,
-    url: `/review/${message.message.review_id}`,
-    to_user: `${review.user_id}`,
-  });
+  if (user._id != review.user_id) {
+    notificationStore.create({
+      content: `${user.full_name} added a new comment to the review on ${gradeComposition.name}`,
+      state: "new",
+      class: `${myClass.class_name}`,
+      url: `/review/${message.message.review_id}`,
+      to_user: `${review.user_id}`,
+    });
+  }
 
   // get registrations
-  const registrations =
+  let registrations =
     await classRegistrationStore.findClassRegistrationsByClassIdAndRole(
       review.class_id,
       "teacher"
     );
 
   if (!registrations) return;
+
+  registrations = registrations.filter(r => r.user_id != user._id);
+
   for (let i = 0; i < registrations.length; i++) {
     notificationStore.create({
       content: `${user.full_name} added a new comment to the review on ${gradeComposition.name}`,

@@ -22,15 +22,6 @@ const RunCreateNotificationAfterUserCreateReview = async (message) => {
 
   if (!myClass || !myClass.class_name) return;
 
-  // notifications to review owner
-  notificationStore.create({
-    content: `You requested a grade review on ${gradeComposition.name}`,
-    state: "new",
-    class: `${myClass.class_name}`,
-    url: `/review/${message.message.review_id}`,
-    to_user: `${message.message.user_id}`,
-  });
-
   // get registrations
   const registrations =
     await classRegistrationStore.findClassRegistrationsByClassIdAndRole(
