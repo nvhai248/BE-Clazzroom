@@ -15,7 +15,7 @@ class notificationStore {
     const notifications = await Notification.find({
       to_user: userId,
     })
-      .sort({ created_at: -1 }) // Sort by createdAt in descending order (latest to oldest)
+      .sort({ createdAt: -1 }) // Sort by createdAt in descending order (latest to oldest)
       .limit(perPage)
       .skip((page - 1) * perPage);
 
